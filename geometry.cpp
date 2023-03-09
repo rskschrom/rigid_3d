@@ -53,7 +53,7 @@ void inter_particle_pair(std::vector<float> x1, std::vector<float> y1, std::vect
   int i, j;
   int npar1 = x1.size();
   int npar2 = x2.size();
-  float dist;
+  float dist = ds*ds*ds;
   
   // clear prior vector data
   ip1.clear();
@@ -63,11 +63,11 @@ void inter_particle_pair(std::vector<float> x1, std::vector<float> y1, std::vect
   // naive all-pairs implementation  
   for (i = 0; i < npar1; i++){
     for (j = 0; j < npar2; j++){
-      dist = sqrt(pow(x1[i]-x2[j], 2)+pow(y1[i]-y2[j], 2));
-      if (dist<=ds){
+      dist = pow(x1[i]-x2[j], 2)+pow(y1[i]-y2[j], 2);
+      if (dist<=ds*ds){
         ip1.push_back(i);
         ip2.push_back(j);
-        dis_vec.push_back(dist);
+        dis_vec.push_back(sqrt(dist));
       }
     }
   }

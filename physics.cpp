@@ -98,7 +98,7 @@ void first_collision(Params p, State &s1, State &s2, std::vector<int> &ip1, std:
   float vx1, vy1, vx2, vy2, e12x, e12y, vr12;
   
   // get collision times
-  printf("%d\n", ncol);
+  //printf("%d\n", ncol);
   tcol = 0.1;
   ip1_first = ip1[0];
   ip2_first = ip2[0];
@@ -125,9 +125,9 @@ void first_collision(Params p, State &s1, State &s2, std::vector<int> &ip1, std:
     vr12 = vrx*e12x+vry*e12y;
     tcols[i] = (p.ds-r12)/vr12;
     
-    printf("%d %8.6f %8.6f\n", i, r12, vry);
-    printf("%8.6f\n", s1.vy-s2.vy);
-    printf("tcol %8.6f\n", tcols[i]);
+    //printf("%d %8.6f %8.6f\n", i, r12, vry);
+    //printf("%8.6f\n", s1.vy-s2.vy);
+    //printf("tcol %8.6f\n", tcols[i]);
     
     // compare collision time to earliest collision time
     if (tcols[i]<tcol){
@@ -160,9 +160,9 @@ void lj_collision(Params p, State &s1, State &s2, float alpha1, float alpha2, fl
   
   // determine if collision has occured
   inter_particle_pair(s1.xt, s1.yt, s2.xt, s2.yt, p.ds, ip1, ip2, dis_vec);
-  printf("%d\n", int(dis_vec.size()));  
+  //printf("%d\n", int(dis_vec.size()));  
   if (dis_vec.size()>0){
-    printf("%d contact(s)!, %8.6f\n", int(dis_vec.size()), dis_vec[0]);
+    //printf("%d contact(s)!, %8.6f\n", int(dis_vec.size()), dis_vec[0]);
     
     // find first collision time and location in timestep
     first_collision(p, s1, s2, ip1, ip2, tcol);
@@ -178,51 +178,23 @@ void lj_collision(Params p, State &s1, State &s2, float alpha1, float alpha2, fl
     // backward integration to initial collision time
     evolve_motion(p, s1, alpha1, ax1, ay1, -p.dt);
     evolve_motion(p, s2, alpha2, ax2, ay2, -p.dt);
-    
-    //dis_vec.clear();
-    //inter_particle_pair(s1.xt, s1.yt, s2.xt, s2.yt, p.ds, ip1, ip2, dis_vec);
-    //printf("%d collision check\n", int(dis_vec.size()));
-    
-    
-    
+
      
     // get potential forces to use for surface normal vectors
     fx1_sum = 0.;
     fy1_sum = 0.;
     f1_mag_sum = 0.;
-    //xcon1 = 0.;
-    //ycon1 = 0.;
     
     for (i = 0; i < npar1; i++){
       fx1_sum += fx1[i];
       fy1_sum += fy1[i];
       f1_mag_sum += sqrt(pow(fx1[i], 2)+pow(fy1[i], 2));
-      //xcon1 += sqrt(pow(fx1[i], 2)+pow(fy1[i], 2))*s1.xt[i];
-      //ycon1 += sqrt(pow(fx1[i], 2)+pow(fy1[i], 2))*s1.yt[i];
     }
   
     f1_mag = sqrt(fx1_sum*fx1_sum+fy1_sum*fy1_sum);
     nx = fx1_sum/f1_mag;
     ny = fy1_sum/f1_mag;
-    //xcon1 = xcon1/f1_mag_sum;
-    //ycon1 = ycon1/f1_mag_sum;
-    
-    /*
-    // weighted averaged of contact point of body 2
-    f2_mag_sum = 0.;
-    xcon2 = 0.;
-    ycon2 = 0.;
-    
-    for (i = 0; i < npar2; i++){
-      f2_mag_sum += sqrt(pow(fx2[i], 2)+pow(fy2[i], 2));
-      xcon2 += sqrt(pow(fx2[i], 2)+pow(fy2[i], 2))*s2.xt[i];
-      ycon2 += sqrt(pow(fx2[i], 2)+pow(fy2[i], 2))*s2.yt[i];
-    }
-  
-    xcon2 = xcon2/f2_mag_sum;
-    ycon2 = ycon2/f2_mag_sum;
-    
-    */  
+
     // calculate impulse
     eps = 0.1;
     vx1 = s1.vx-s1.omega*(ycon-s1.ycom);
@@ -234,15 +206,7 @@ void lj_collision(Params p, State &s1, State &s2, float alpha1, float alpha2, fl
     imp = -(1.+eps)*vrel/(1./s1.mass+1./s2.mass+pow(nx*(ycon-s1.ycom)-ny*(xcon-s1.xcom), 2)/s1.inerm+
                                                 pow(nx*(ycon-s2.ycom)-ny*(xcon-s2.xcom), 2)/s2.inerm);
     
-    /*                                            
-    // backward integrate motions to actual collision time if offset is substantial
-    if (abs(p.ds-pair_dist)/pair_dist>0.1){
-      tcol = (p.ds-pair_dist)/vrel;
-      printf("%8.6f %8.6f %8.6f\n", tcol, p.dt, vrel);
-      evolve_motion(p, s1, alpha1, ax1, ay1, tcol);
-      evolve_motion(p, s2, alpha2, ax2, ay2, tcol);
-    }
-    */
+
     // adjust angular and linear velocities to account for collision
     s1.vx += imp*nx/s1.mass;
     s1.vy += imp*ny/s1.mass;
@@ -251,17 +215,6 @@ void lj_collision(Params p, State &s1, State &s2, float alpha1, float alpha2, fl
     
     s1.omega += -imp*(nx*(ycon-s1.ycom)-ny*(xcon-s1.xcom))/s1.inerm;
     s2.omega += imp*(nx*(ycon-s2.ycom)-ny*(xcon-s2.xcom))/s2.inerm;
-    
-    // forward integration in time
-    //evolve_motion(p, s1, alpha1, ax1, ay1, -tcol);
-    //evolve_motion(p, s2, alpha2, ax2, ay2, -tcol);
-    
-    /*
-    // forward integrate motions to compensate collision time offset
-    if (abs(p.ds-pair_dist)/pair_dist>0.1){
-      evolve_motion(p, s1, alpha1, ax1, ay1, tcol);
-      evolve_motion(p, s2, alpha2, ax2, ay2, tcol);
-    }
-    */
+
   }
 }
