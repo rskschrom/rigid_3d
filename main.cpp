@@ -23,7 +23,7 @@ int main(void){
   std::vector<float> fx1, fy1, fx2, fy2;
   std::vector<float> xtr1_out, ytr1_out, xtr2_out, ytr2_out;
   std::vector<float> fx1_out, fy1_out, fx2_out, fy2_out, dis_vec;
-  std::vector<int> ip1, ip2;
+  std::vector<int> ip1, ip2, hi1, hi2;
 
   s1.theta = 0.;
   s1.omega = 0.2;
@@ -33,7 +33,9 @@ int main(void){
   s1.ycom = 3.;
   s1.rho = 920.;
   s1.dm = pow(p.ds, 2)*s1.rho;
-  
+  s1.nhx = 9;
+  s1.nhy = 9;
+    
   s2.theta = p.pi/6.;
   s2.omega = 0.;
   s2.vx = 0.;
@@ -42,6 +44,8 @@ int main(void){
   s2.ycom = -2.;
   s2.rho = 920000.;
   s2.dm = pow(p.ds, 2)*s2.rho;
+  s2.nhx = 9;
+  s2.nhy = 9;
   
   //init_body(p, s1, 30, 10);
   //init_body(p, s2, 10, 10);
@@ -54,6 +58,10 @@ int main(void){
 
   npar1 = s1.x.size();
   npar2 = s2.x.size();
+    
+  spatial_hash(p, s1);
+  spatial_hash(p, s2);
+  
   printf("%d %d\n", npar1, npar2);
   
   // write out initial particle base positions
@@ -72,6 +80,30 @@ int main(void){
   std::ofstream file_y2("y2.txt");
   std::ostream_iterator<float> fitery2(file_y2, "\n");
   std::copy(s2.y.begin(), s2.y.end(), fitery2);
+  
+  std::ofstream fileh1("hash1.txt");
+  std::ostream_iterator<int> fiterh1(fileh1, "\n");
+  std::copy(s1.hi.begin(), s1.hi.end(), fiterh1);
+  
+  std::ofstream fileh2("hash2.txt");
+  std::ostream_iterator<int> fiterh2(fileh2, "\n");
+  std::copy(s2.hi.begin(), s2.hi.end(), fiterh2);
+  
+  std::ofstream filehx1("hx1.txt");
+  std::ostream_iterator<float> fiterhx1(filehx1, "\n");
+  std::copy(s1.xh.begin(), s1.xh.end(), fiterhx1);
+  
+  std::ofstream filehy1("hy1.txt");
+  std::ostream_iterator<float> fiterhy1(filehy1, "\n");
+  std::copy(s1.yh.begin(), s1.yh.end(), fiterhy1);
+  
+  std::ofstream filehx2("hx2.txt");
+  std::ostream_iterator<float> fiterhx2(filehx2, "\n");
+  std::copy(s2.xh.begin(), s2.xh.end(), fiterhx2);
+  
+  std::ofstream filehy2("hy2.txt");
+  std::ostream_iterator<float> fiterhy2(filehy2, "\n");
+  std::copy(s2.yh.begin(), s2.yh.end(), fiterhy2);
   
   // output files for rigid body position and orientation
   std::ofstream file_r1("rigid1.txt");
@@ -108,7 +140,7 @@ int main(void){
   
   // time loop  
   for (k = 0; k < p.nt; k++){
-    //printf("%d\n", k);    
+    printf("%d\n", k);    
     // detect collision
     lj_collision(p, s1, s2, 0., 0., 0.1*p.g, 0., 0., 0.);
     

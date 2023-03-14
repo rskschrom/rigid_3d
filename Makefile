@@ -4,7 +4,7 @@ CCFLAGS = -O3
 CLIBS = 
 LPATH = -L/usr/local/lib
 IPATH = -I/usr/local/include
-OBJS = init.o physics.o geometry.o
+OBJS = init.o physics.o geometry.o util.o
 MAIN = main.cpp
 
 # main program compilation

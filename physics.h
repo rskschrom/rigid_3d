@@ -2,7 +2,6 @@
 #include "params.h"
 #include "state.h"
 
-void transform_particles(Params p, State &s);
 void evolve_motion(Params p, State &s, float alpha, float ax, float ay, float dt);
 void lj_potential(Params p, State s1, State s2, float xcon, float ycon,
                   std::vector<float> &fx1, std::vector<float> &fy1,

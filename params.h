@@ -3,7 +3,7 @@
 
 //structure for simulation parameters
 struct Params{
-  int nt = 1000;
+  int nt = 10;
   float pi = 3.14159265;
   float ds = 0.1;
   float dt = 1.e-2;

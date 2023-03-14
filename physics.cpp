@@ -7,17 +7,6 @@
 #include "state.h"
 #include "geometry.h"
 
-// rotate and translate body particles
-void transform_particles(Params p, State &s){
-  int i;
-  int npar = s.x.size();
-  
-  for (i = 0; i < npar; i++){
-      s.xt[i] = cos(s.theta)*s.x[i]-sin(s.theta)*s.y[i]+s.xcom;
-      s.yt[i] = sin(s.theta)*s.x[i]+cos(s.theta)*s.y[i]+s.ycom;
-  }
-}
-
 // evolve motion of body
 void evolve_motion(Params p, State &s, float alpha, float ax, float ay, float dt){
   // update body position and velocity
@@ -159,7 +148,7 @@ void lj_collision(Params p, State &s1, State &s2, float alpha1, float alpha2, fl
   std::vector<int> ip1, ip2;
   
   // determine if collision has occured
-  inter_particle_pair(s1.xt, s1.yt, s2.xt, s2.yt, p.ds, ip1, ip2, dis_vec);
+  inter_particle_pair(p, s1, s2, ip1, ip2, dis_vec);
   //printf("%d\n", int(dis_vec.size()));  
   if (dis_vec.size()>0){
     //printf("%d contact(s)!, %8.6f\n", int(dis_vec.size()), dis_vec[0]);
