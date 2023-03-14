@@ -52,7 +52,7 @@ int main(void){
   
   // define particle bodies and transform them
   init_body_file(p, s1, "par_data2.txt");
-  init_body_file(p, s2, "par_data.txt");
+  init_body_file(p, s2, "par_data2.txt");
   transform_particles(p, s1);
   transform_particles(p, s2);
 

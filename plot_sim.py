@@ -61,7 +61,7 @@ dp = 5.
 ax = fig.add_subplot(1,1,1)
 
 plt.scatter(hx, hy, c='k', s=20.)
-plt.scatter(x, y, c=h, s=10, cmap='Spectral_r')
+plt.scatter(x, y, c=h, s=1, cmap='Spectral_r')
 plt.colorbar()
 ax.set_aspect(1.)
 ax.set_xlim([-dp,dp])

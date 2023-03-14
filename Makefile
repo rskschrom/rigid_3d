@@ -1,6 +1,6 @@
 # compile options
 CC = g++
-CCFLAGS = -O3
+CCFLAGS = -O3 -pg
 CLIBS = 
 LPATH = -L/usr/local/lib
 IPATH = -I/usr/local/include

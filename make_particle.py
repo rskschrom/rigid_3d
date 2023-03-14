@@ -7,13 +7,13 @@ amax = 3.
 ac = 0.3
 
 fb = 0.3
-ft = 0.2
-fg = 0.4
+ft = 0.4
+fg = 0.3
 
 nsb = 3
 
 ag = fg*amax+(1.-fg)*ac
-nxp = 50
+nxp = 150
 nzp = 3
 
 fname, afrac = branched_planar_dda(a, amax, ac, ft, fb, fg, nsb, nxp, nzp)

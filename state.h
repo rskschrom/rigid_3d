@@ -16,6 +16,7 @@ struct State{
   std::vector<float> xh; // bin positions
   std::vector<float> yh;  
   std::vector<int> hcount; // count of particles in bin
+  std::vector<int> bin_sti; // starting index of each bin
   
   int nhx; // number of bins for hashing
   int nhy; 

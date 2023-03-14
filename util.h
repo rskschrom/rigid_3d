@@ -1,7 +1,6 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include "params.h"
 #include "state.h"
 
 // sort array via sort vector
@@ -19,3 +18,4 @@ void sortWithVector(std::vector<T> &values, std::vector<int> sortVec){
     values[i] = valuesSort[i];
   }
 }
+void sortStateVars(State &s, std::vector<int> sortVec);

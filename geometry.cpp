@@ -38,14 +38,14 @@ void spatial_hash(Params p, State &s){
   float ymin = s.y[0];
   float ymax = s.y[0];
   std::vector<int> sort_vec(npar);
-  std::vector<int> chunk_ind(s.nhx*s.nhy); // starting index of each chunk
-  //std::vector<int> chunk_offs(s.nhx*s.nhy);
+  std::vector<int> bin_ind(s.nhx*s.nhy); // starting index of each bin
   
   // resize arrays
   s.hi.resize(npar);
   s.xh.resize(s.nhx);
   s.yh.resize(s.nhy);
   s.hcount.resize(s.nhx*s.nhy);
+  s.bin_sti.resize(s.nhx*s.nhy);
   
   // calculate bin widths
   for (i = 0; i < npar; i++){
@@ -77,22 +77,20 @@ void spatial_hash(Params p, State &s){
   
   // sort particles by hash index  
   for (i = 0; i < s.nhx*s.nhy-1; i++){
-    chunk_ind[i+1] = chunk_ind[i]+s.hcount[i];
+    bin_ind[i+1] = bin_ind[i]+s.hcount[i];
   }
   
   for (i = 0; i < npar; i++){
-    sort_vec[i] = chunk_ind[s.hi[i]];
-    chunk_ind[s.hi[i]]++;
-    printf("%d %d\n", i, s.hi[i]);
+    sort_vec[i] = bin_ind[s.hi[i]];
+    bin_ind[s.hi[i]]++;
   }
   
-  sortWithVector<float>(s.x, sort_vec);
-  sortWithVector<float>(s.y, sort_vec);
-  sortWithVector<int>(s.hi, sort_vec);
+  sortStateVars(s, sort_vec);
   
-  // test sort
-  for (i = 0; i < npar; i++){
-    printf("%d %d\n", i, s.hi[i]);
+  // remove hcount offset from bin indices to get starting indices
+  for (i = 0; i < s.nhx*s.nhy; i++){
+    s.bin_sti[i] = bin_ind[i]-s.hcount[i];
+    //printf("%d %d\n", i, s.bin_sti[i]);
   }
   
   // calculate bin center positions
@@ -150,7 +148,7 @@ void close_particle_pair(std::vector<float> x1, std::vector<float> y1, std::vect
 
 // get all intersection pairs where distance < ds
 void inter_particle_pair(Params p, State &s1, State &s2, std::vector<int> &ip1, std::vector<int> &ip2, std::vector<float> &dis_vec){
-  int i, j;
+  int k, i, j, npair_bin, sti1, sti2, npb1, npb2;
   int npar1 = s1.x.size();
   int npar2 = s2.x.size();
   int nh1 = s1.nhx*s1.nhy;
@@ -161,7 +159,7 @@ void inter_particle_pair(Params p, State &s1, State &s2, std::vector<int> &ip1, 
   float disth; 
   std::vector<float> xht1(nh1), yht1(nh1);
   std::vector<float> xht2(nh2), yht2(nh2);
-  std::vector<int> iph1, iph2;
+  std::vector<int> ih1, ih2;
   
   // clear prior vector data
   ip1.clear();
@@ -171,22 +169,43 @@ void inter_particle_pair(Params p, State &s1, State &s2, std::vector<int> &ip1, 
   // get binned chunks that are close together
   transform_hash(p, s1, xht1, yht1);
   transform_hash(p, s2, xht2, yht2);
-
-  printf("%8.6f\n", dsh);
   
   // get bins that are close to each other  
   for (i = 0; i < nh1; i++){
     for (j = 0; j < nh2; j++){
       disth = pow(xht1[i]-xht2[j], 2)+pow(yht1[i]-yht2[j], 2);
       if (disth<=dsh*dsh){
-        iph1.push_back(i);
-        iph2.push_back(j);        
+        ih1.push_back(i);
+        ih2.push_back(j);
       }
     }
   }
   
-  printf("%d\n", int(iph1.size()));
+  npair_bin = ih1.size();
   
+  // loop over only particles within each pair of bins
+  for (k = 0; k < npair_bin; k++){
+    //printf("%d %d\n", ih1[k], ih2[k]);
+    
+    sti1 = s1.bin_sti[ih1[k]];
+    sti2 = s2.bin_sti[ih2[k]];
+    npb1 = s1.hcount[ih1[k]];
+    npb2 = s2.hcount[ih2[k]];
+    
+    for (i = sti1; i < sti1+npb1; i++){
+      for (j = sti2; j < sti2+npb2; j++){
+        dist = pow(s1.xt[i]-s2.xt[j], 2)+pow(s1.yt[i]-s2.yt[j], 2);
+        if (dist<=ds*ds){
+          ip1.push_back(i);
+          ip2.push_back(j);
+          dis_vec.push_back(sqrt(dist));
+      }
+    }
+  }
+    
+  }
+  
+  /*
   // naive all-pairs implementation  
   for (i = 0; i < npar1; i++){
     for (j = 0; j < npar2; j++){
@@ -197,7 +216,7 @@ void inter_particle_pair(Params p, State &s1, State &s2, std::vector<int> &ip1, 
         dis_vec.push_back(sqrt(dist));
       }
     }
-  }
+  }*/
 }
 
 // get minimum distance between particles on each body
