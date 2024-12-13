@@ -22,3 +22,22 @@ void conj(std::vector<float> q, std::vector<float> &cq){
   cq[2] = -q[2];
   cq[3] = -q[3];
 }
+
+// rotate pure quaternion (vector) with unit quaternion (versor)
+void vect_rotate(std::vector<float> v, std::vector<float> q, std::vector<float> &vr){
+  float a, b, c;
+
+  a = q[0]*q[0]-
+      q[1]*q[1]-
+      q[2]*q[2]-
+      q[3]*q[3];  
+  b = 2.*(v[0]*q[1]+
+          v[1]*q[2]+
+          v[2]*q[3]);
+  c = -2.*q[0];
+  
+  // vr = a*p+b*v+c*pxv
+  vr[0] = a*v[0]+b*q[1]+c*(v[1]*q[3]-v[2]*q[2]);
+  vr[1] = a*v[1]+b*q[2]+c*(v[2]*q[1]-v[0]*q[3]);
+  vr[2] = a*v[2]+b*q[3]+c*(v[0]*q[2]-v[1]*q[1]);
+}

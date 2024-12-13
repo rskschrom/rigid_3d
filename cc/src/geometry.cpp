@@ -3,7 +3,7 @@
 #include <vector>
 #include "params.h"
 #include "state.h"
-#include "util.h"
+//#include "util.h"
 #include "quat.h"
 #include <Eigen/Dense>
 

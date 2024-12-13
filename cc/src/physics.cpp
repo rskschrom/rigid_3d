@@ -6,7 +6,7 @@
 #include "params.h"
 #include "state.h"
 #include "quat.h"
-#include "util.h"
+//#include "util.h"
 #include "geometry.h"
 
 // evolve motion of body without accelerations
