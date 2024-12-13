@@ -6,30 +6,17 @@
 // state variables for simulation
 struct State{
   // per particle vectors
-  std::vector<float> x; // base reference frame particle positions
-  std::vector<float> y;
-  std::vector<float> xt; // transformed reference frame particle positions
-  std::vector<float> yt;
-  std::vector<int> hi; // hash index
-  
-  // per hash vectors
-  std::vector<float> xh; // bin positions
-  std::vector<float> yh;  
-  std::vector<int> hcount; // count of particles in bin
-  std::vector<int> bin_sti; // starting index of each bin
-  
-  int nhx; // number of bins for hashing
-  int nhy; 
-  
+  std::vector<float> r; // base reference frame particle positions
+  std::vector<float> rt; // transformed reference frame particle positions
+
   // body properties
+  std::vector<float> com;
+  std::vector<float> vel;
+  std::vector<float> inerm;
+  std::vector<float> iinerm;
+  std::vector<float> orient;
+  std::vector<float> omega;
   float mass;
-  float inerm;
-  float xcom;
-  float ycom;
-  float vx;
-  float vy;
-  float theta;
-  float omega;
   float rho;
   float dm;
 };

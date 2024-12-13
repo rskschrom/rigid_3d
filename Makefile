@@ -1,10 +1,10 @@
 # compile options
 CC = g++
-CCFLAGS = -O3 -pg
-CLIBS = 
+CCFLAGS = -O3
+CLIBS = -lfmt
 LPATH = -L/usr/local/lib
-IPATH = -I/usr/local/include
-OBJS = init.o physics.o geometry.o util.o
+IPATH = -I/home/robert/research/eigen-3.4.0
+OBJS = init.o quat.o physics.o geometry.o
 MAIN = main.cpp
 
 # main program compilation

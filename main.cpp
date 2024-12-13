@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fmt/core.h>
 #include <iomanip>
 #include <fstream>
 #include <iterator>
@@ -7,166 +8,148 @@
 #include "params.h"
 #include "state.h"
 #include "init.h"
+#include "quat.h"
 #include "physics.h"
 #include "geometry.h"
 
 int main(void){
 
-  int i, j, k, npar1, npar2, cpi1, cpi2;
-  float pair_dist, mass1, mass2, fx1_sum, fy1_sum, fx2_sum, fy2_sum;
-  float t1_sum, t2_sum, ax1, ay1, ax2, ay2, alp1, alp2;
-  float inerm1, inerm2, ke1, ke2, rke1, rke2;
+  int npar1, npar2, ncol, rcount;
+  std::vector<float> alpha, acc, dis_vec, f1, f2, bbox1(6), bbox2(6), con(3);
+  std::vector<float> dv1(6), dv2(6), iitens_rot(9), traj1, traj2;
+  std::vector<int> ip1, ip2;
+  
+  bool attached = false;
 
   // initial body properties
   struct Params p;
   struct State s1, s2;
-  std::vector<float> fx1, fy1, fx2, fy2;
-  std::vector<float> xtr1_out, ytr1_out, xtr2_out, ytr2_out;
-  std::vector<float> fx1_out, fy1_out, fx2_out, fy2_out, dis_vec;
-  std::vector<int> ip1, ip2, hi1, hi2;
 
-  s1.theta = 0.;
-  s1.omega = 0.2;
-  s1.vx = -0.3;
-  s1.vy = 0.;
-  s1.xcom = 0.75;
-  s1.ycom = 3.;
   s1.rho = 920.;
-  s1.dm = pow(p.ds, 2)*s1.rho;
-  s1.nhx = 9;
-  s1.nhy = 9;
-    
-  s2.theta = p.pi/6.;
-  s2.omega = 0.;
-  s2.vx = 0.;
-  s2.vy = 0.;
-  s2.xcom = 0.;
-  s2.ycom = -2.;
-  s2.rho = 920000.;
-  s2.dm = pow(p.ds, 2)*s2.rho;
-  s2.nhx = 9;
-  s2.nhy = 9;
-  
-  //init_body(p, s1, 30, 10);
-  //init_body(p, s2, 10, 10);
+  s2.rho = 920.;
   
   // define particle bodies and transform them
-  init_body_file(p, s1, "par_data2.txt");
-  init_body_file(p, s2, "par_data2.txt");
-  transform_particles(p, s1);
-  transform_particles(p, s2);
+  init_body_file(p, s1, "crystal_0000_1.5.txt");
+  init_body_file(p, s2, "crystal_0000_1.5.txt");
 
-  npar1 = s1.x.size();
-  npar2 = s2.x.size();
-    
-  spatial_hash(p, s1);
-  spatial_hash(p, s2);
-  
-  printf("%d %d\n", npar1, npar2);
+  npar1 = s1.r.size()/3;
+  npar2 = s2.r.size()/3;
+
+  s1.omega = {0.,0.,0.,-0.5};
+  s2.omega = {0.,0.,0.,0.1};
+  s1.com = {0.,0.05,0.4};
+  s2.com = {0.,0.,0.-0.2};
+  //s1.orient = {sqrt(2.)/2.,0.,sqrt(2.)/2.,0.};
+  s1.vel = {0.,0.,-0.1};
   
   // write out initial particle base positions
-  std::ofstream file_x1("x1.txt");
-  std::ostream_iterator<float> fiterx1(file_x1, "\n");
-  std::copy(s1.x.begin(), s1.x.end(), fiterx1);
- 
-  std::ofstream file_y1("y1.txt");
-  std::ostream_iterator<float> fitery1(file_y1, "\n");
-  std::copy(s1.y.begin(), s1.y.end(), fitery1);
-
-  std::ofstream file_x2("x2.txt");
-  std::ostream_iterator<float> fiterx2(file_x2, "\n");
-  std::copy(s2.x.begin(), s2.x.end(), fiterx2);
-
-  std::ofstream file_y2("y2.txt");
-  std::ostream_iterator<float> fitery2(file_y2, "\n");
-  std::copy(s2.y.begin(), s2.y.end(), fitery2);
+  std::ofstream file_r1("r1.txt");
+  std::ostream_iterator<float> fiter_r1(file_r1, "\n");
+  std::copy(s1.r.begin(), s1.r.end(), fiter_r1);
   
-  std::ofstream fileh1("hash1.txt");
-  std::ostream_iterator<int> fiterh1(fileh1, "\n");
-  std::copy(s1.hi.begin(), s1.hi.end(), fiterh1);
-  
-  std::ofstream fileh2("hash2.txt");
-  std::ostream_iterator<int> fiterh2(fileh2, "\n");
-  std::copy(s2.hi.begin(), s2.hi.end(), fiterh2);
-  
-  std::ofstream filehx1("hx1.txt");
-  std::ostream_iterator<float> fiterhx1(filehx1, "\n");
-  std::copy(s1.xh.begin(), s1.xh.end(), fiterhx1);
-  
-  std::ofstream filehy1("hy1.txt");
-  std::ostream_iterator<float> fiterhy1(filehy1, "\n");
-  std::copy(s1.yh.begin(), s1.yh.end(), fiterhy1);
-  
-  std::ofstream filehx2("hx2.txt");
-  std::ostream_iterator<float> fiterhx2(filehx2, "\n");
-  std::copy(s2.xh.begin(), s2.xh.end(), fiterhx2);
-  
-  std::ofstream filehy2("hy2.txt");
-  std::ostream_iterator<float> fiterhy2(filehy2, "\n");
-  std::copy(s2.yh.begin(), s2.yh.end(), fiterhy2);
+  std::ofstream file_r2("r2.txt");
+  std::ostream_iterator<float> fiter_r2(file_r2, "\n");
+  std::copy(s2.r.begin(), s2.r.end(), fiter_r2);
   
   // output files for rigid body position and orientation
-  std::ofstream file_r1("rigid1.txt");
-  std::ofstream file_r2("rigid2.txt");
+  std::ofstream file_o1("orient1.txt");
+  std::ofstream file_p1("pos1.txt");
+  std::ofstream file_o2("orient2.txt");
+  std::ofstream file_p2("pos2.txt");
   
-  file_r1 << std::setw(9) << std::setprecision(4) << std::fixed << s1.xcom
-            << std::setw(9) << std::setprecision(4) << std::fixed << s1.ycom 
-            << std::setw(9) << std::setprecision(4) << std::fixed << s1.theta << std::endl;
-            
-  file_r2 << std::setw(9) << std::setprecision(4) << std::fixed << s2.xcom
-            << std::setw(9) << std::setprecision(4) << std::fixed << s2.ycom 
-            << std::setw(9) << std::setprecision(4) << std::fixed << s2.theta << std::endl;
+  file_o1 << fmt::format("{:10.6f}{:10.6f}{:10.6f}{:10.6f}\n",
+                         s1.orient[0], s1.orient[1], s1.orient[2], s1.orient[3]);          
+  file_p1 << fmt::format("{:9.4f}{:9.4f}{:9.4f}\n",
+                         s1.com[0], s1.com[1], s1.com[2]);
+                         
+  file_o2 << fmt::format("{:10.6f}{:10.6f}{:10.6f}{:10.6f}\n",
+                         s2.orient[0], s2.orient[1], s2.orient[2], s2.orient[3]);          
+  file_p2 << fmt::format("{:9.4f}{:9.4f}{:9.4f}\n",
+                         s2.com[0], s2.com[1], s2.com[2]);
   
-  // calculate inertia moments and mass
-  inerm1 = 0.;
-  inerm2 = 0.;
-  mass1 = 0.;
-  mass2 = 0.;
+
+  // initial impulse
+  alpha = {0.,6.,-4,-1.};
+  //alpha = {0.,0.,0.,0.};
+  acc = {0.,0.,0.};
+  evolve_motion(p, s1, alpha, acc, p.dt);
+  ncol = 0;
   
-  for (i = 0; i < npar1; i++){
-    mass1 += s1.dm;
-    inerm1 += s1.dm*(pow(s1.x[i], 2)+pow(s1.y[i], 2));
-  }
+  /*
+  // test particle trajectory
+  transform_particles(p, s1);
+  transform_particles(p, s2);
+    
+  traj1.resize(3*2000);
+  traj2.resize(3*2000);
+  particle_trajectory(p, s1, 0, 0.01, traj1);
+  particle_trajectory(p, s2, 0, 0.01, traj2);
   
-  for (i = 0; i < npar2; i++){
-    mass2 += s2.dm;
-    inerm2 += s2.dm*(pow(s2.x[i], 2)+pow(s2.y[i], 2));
-  }
+  std::ofstream file_tr1("traj1.txt");
+  std::ostream_iterator<float> fiter_tr1(file_tr1, "\n");
+  std::copy(traj1.begin(), traj1.end(), fiter_tr1);
   
-  s1.mass = mass1;
-  s2.mass = mass2;
-  s1.inerm = inerm1;
-  s2.inerm = inerm2;
+  std::ofstream file_tr2("traj2.txt");
+  std::ostream_iterator<float> fiter_tr2(file_tr2, "\n");
+  std::copy(traj2.begin(), traj2.end(), fiter_tr2);
+  */
   
   // time loop  
-  for (k = 0; k < p.nt; k++){
-    printf("%d\n", k);    
-    // detect collision
-    lj_collision(p, s1, s2, 0., 0., 0.1*p.g, 0., 0., 0.);
+  for (int k = 0; k < p.nt; k++){
+    printf("%d\n", k);
+
+    //evolve_motion_intertial(p, s1, p.dt);
+    evolve_motion(p, s1, {0.,0.,0.,0.}, {0.,0.,0.}, p.dt);
+    evolve_motion(p, s2, {0.,0.,0.,0.}, {0.,0.,0.}, p.dt);
     
-    evolve_motion(p, s1, 0., 0., 0.1*p.g, p.dt),
-    evolve_motion(p, s2, 0., 0., 0., p.dt);
+    transform_particles(p, s1);
+    transform_particles(p, s2);
+    
+    //body_bbox(p, s1, bbox1);
+    //body_bbox(p, s2, bbox2);
+    rcount = 0;
+    //if (!attached){
+    test_collision(p, s1, s2, {0.,0.,0.,0.}, {0.,0.,0.}, {0.,0.,0.,0.}, {0.,0.,0.},
+                   attached, rcount);
+    //}
+                   
+    printf("%8.6f %8.6f %8.6f %8.6f %8.6f %8.6f\n", s1.vel[0], s1.vel[1], s1.vel[2], s2.vel[0], s2.vel[1], s2.vel[2]);
     
     // file output
-    file_r1 << std::setw(9) << std::setprecision(4) << std::fixed << s1.xcom
-            << std::setw(9) << std::setprecision(4) << std::fixed << s1.ycom 
-            << std::setw(9) << std::setprecision(4) << std::fixed << s1.theta << std::endl;
-    
-    file_r2 << std::setw(9) << std::setprecision(4) << std::fixed << s2.xcom
-            << std::setw(9) << std::setprecision(4) << std::fixed << s2.ycom 
-            << std::setw(9) << std::setprecision(4) << std::fixed << s2.theta << std::endl;
-    
-    // assess energy conservation
-    ke1 = 0.5*mass1*(s1.vx*s1.vx+s1.vy*s1.vy);
-    ke2 = 0.5*mass2*(s2.vx*s2.vx+s2.vy*s2.vy);
-    rke1 = 0.5*inerm1*s1.omega*s1.omega;
-    rke2 = 0.5*inerm2*s2.omega*s2.omega;
-    //printf("%8.6f %8.6f %8.5f\n", ke1, ke2, ke1+ke2);
-    //printf("%8.6f %8.6f %8.5f\n", rke1, rke2, rke1+rke2);
-    //printf("%8.6f\n", ke1+ke2+rke1+rke2);
+    file_o1 << fmt::format("{:10.6f}{:10.6f}{:10.6f}{:10.6f}\n",
+                         s1.orient[0], s1.orient[1], s1.orient[2], s1.orient[3]);          
+    file_p1 << fmt::format("{:12.4f}{:12.4f}{:12.4f}\n",
+                         s1.com[0], s1.com[1], s1.com[2]);
+                         
+    file_o2 << fmt::format("{:10.6f}{:10.6f}{:10.6f}{:10.6f}\n",
+                         s2.orient[0], s2.orient[1], s2.orient[2], s2.orient[3]);          
+    file_p2 << fmt::format("{:12.4f}{:12.4f}{:12.4f}\n",
+                         s2.com[0], s2.com[1], s2.com[2]);
 
   }
-  file_r1.close();
-  file_r2.close();
-
+  
+  file_o1.close();
+  file_p1.close();
+  file_o2.close();
+  file_p2.close();
+    
+  
+  std::ofstream file_rt1("rt1.txt");
+  std::ostream_iterator<float> fiter_rt1(file_rt1, "\n");
+  std::copy(s1.rt.begin(), s1.rt.end(), fiter_rt1);
+    
+  std::ofstream file_rt2("rt2.txt");
+  std::ostream_iterator<float> fiter_rt2(file_rt2, "\n");
+  std::copy(s2.rt.begin(), s2.rt.end(), fiter_rt2);
+    
+  //std::ofstream file_f1("f1.txt");
+  //std::ostream_iterator<float> fiter_f1(file_f1, "\n");
+  //std::copy(f1.begin(), f1.end(), fiter_f1);
+    
+  //std::ofstream file_f2("f2.txt");
+  //std::ostream_iterator<float> fiter_f2(file_f2, "\n");
+  //std::copy(f2.begin(), f2.end(), fiter_f2);
+    
+  printf("%d\n", int(dis_vec.size()));
+  
 }
