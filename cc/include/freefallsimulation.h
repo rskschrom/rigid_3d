@@ -1,0 +1,54 @@
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <math.h>
+#include <vector>
+#include "simulation.h"
+#include "particle.h"
+
+/// Class for free-fall simulations
+class FreeFallSimulation: public Simulation
+{   
+    public:
+    
+        /// particle object
+        Particle par;
+        
+        /// vectors for the history of positions and orientations
+        std::vector<float> posHistory;
+        std::vector<float> orientHistory;
+                 
+        /*!
+         * Set values for constructor.
+         *
+         * \param par the particle object.
+         * \param nt the number of timesteps.
+         * \param dt the timestep (seconds).
+         * \param g the gravitational acceleration
+         */
+        FreeFallSimulation(Particle par, int nt, float dt, float g):
+            Simulation(nt, dt, g),
+            par(par) {}
+            
+        /*!
+         * Set values for constructor with defaults for simulation
+         *
+         * \param par the particle object.
+         */
+        FreeFallSimulation(Particle par):
+            Simulation(),
+            par(par) {}
+        
+        /*!
+         * Integrate simulation forward with inertial motions.
+         *
+         * \param nstep the number of time steps to integrate
+         */    
+        void evolveMotionInertial(int nstep = 0);
+        
+        /*!
+         * Write history arrays.
+         *
+         */
+        void writeHistories();
+};

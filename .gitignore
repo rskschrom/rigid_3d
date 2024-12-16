@@ -1,0 +1,11 @@
+runs/*.txt
+runs/*.png
+runs/*.gif
+runs/*.out
+runs/*.ply
+runs/*.asc
+cc/src/old_files/
+cc/include/old_files/
+env/
+install/
+

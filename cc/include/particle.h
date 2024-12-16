@@ -15,6 +15,7 @@ class Particle
         std::vector<float> comPos = std::vector<float>(3);
         std::vector<float> comVel = std::vector<float>(3);
         std::vector<float> orient = std::vector<float>(4);
+        std::vector<float> omega = std::vector<float>(4);
         float pointMass;
     
         /*!
@@ -24,6 +25,7 @@ class Particle
          * \param comPos the center of mass of the particle.
          * \param comVel the the velocity of the body.
          * \param orient the quaternion defining the particle orientation.
+         * \param orient the quaternion defining the particle angular velocity.
          * \param pointMass the mass of each point.
          */    
 
@@ -31,11 +33,13 @@ class Particle
                  std::vector<float> comPos,
                  std::vector<float> comVel,
                  std::vector<float> orient,
+                 std::vector<float> omega,
                  float pointMass):
             relPoints(relPoints),
             comPos(comPos),
             comVel(comVel),
             orient(orient),
+            omega(omega),
             pointMass(pointMass) {}
                  
         /*!
@@ -50,6 +54,7 @@ class Particle
             comPos(3, 0.),
             comVel(3, 0.),
             orient({0.,0.,0.,1.}),
+            omega(4, 0.),
             pointMass(pointMass) {}  
          
         /*!
@@ -64,6 +69,27 @@ class Particle
             comPos(3, 0.),
             comVel(3, 0.),
             orient({0.,0.,0.,1.}),
+            omega(4, 0.),
+            pointMass(pointMass) {}
+            
+        /*!
+         * Constructor with relative points read in from file
+         *
+         * \param relPointsFile a text file containing the relative
+         * point positions.
+         * \param pointMass the mass of each point.
+         */
+         Particle(std::string relPointFile,
+                 std::vector<float> comPos,
+                 std::vector<float> comVel,
+                 std::vector<float> orient,
+                 std::vector<float> omega,
+                 float pointMass):
+            relPoints(readPoints(relPointFile)),
+            comPos(comPos),
+            comVel(comVel),
+            orient(orient),
+            omega(omega),
             pointMass(pointMass) {}
 
         /*!

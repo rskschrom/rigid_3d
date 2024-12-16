@@ -1,5 +1,4 @@
 #include "particle.h"
-#include "io.h"
 
 float Particle::totalMass()
 {
