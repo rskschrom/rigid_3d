@@ -38,6 +38,14 @@ class FreeFallSimulation: public Simulation
         FreeFallSimulation(Particle par):
             Simulation(),
             par(par) {}
+            
+        /*!
+         * Integrate simulation forward with applied torque.
+         *
+         * \param torque the applied torque
+         * \param nstep the number of time steps to integrate
+         */    
+        void evolveMotion(std::vector<float> torque, int nstep = 0);
         
         /*!
          * Integrate simulation forward with inertial motions.
