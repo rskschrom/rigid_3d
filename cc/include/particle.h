@@ -3,10 +3,7 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
-#include "params.h"
-#include "state.h"
-#include "quat.h"
-#include "geometry.h"
+#include "io.h"
 
 /// Class for particle object
 class Particle
@@ -34,7 +31,12 @@ class Particle
                  std::vector<float> comPos,
                  std::vector<float> comVel,
                  std::vector<float> orient,
-                 float pointMass);
+                 float pointMass):
+            relPoints(relPoints),
+            comPos(comPos),
+            comVel(comVel),
+            orient(orient),
+            pointMass(pointMass) {}
                  
         /*!
          * Constructor with everthing set to zero except relative points
@@ -43,13 +45,27 @@ class Particle
          * \param relPoints the relative point mass positions.
          * \param pointMass the mass of each point.
          */
-         Particle(std::vector<float> relPoints, float pointMass)
-         {
-             std::vector<float> comPos(3, 0.);
-             std::vector<float> comVel(3, 0.);
-             std::vector<float> orient = {0.,0.,0.,1.};     
-         }
-        
+         Particle(std::vector<float> relPoints, float pointMass):
+            relPoints(relPoints),
+            comPos(3, 0.),
+            comVel(3, 0.),
+            orient({0.,0.,0.,1.}),
+            pointMass(pointMass) {}  
+         
+        /*!
+         * Constructor with relative points read in from file
+         *
+         * \param relPointsFile a text file containing the relative
+         * point positions.
+         * \param pointMass the mass of each point.
+         */
+         Particle(std::string relPointFile, float pointMass):
+            relPoints(readPoints(relPointFile)),
+            comPos(3, 0.),
+            comVel(3, 0.),
+            orient({0.,0.,0.,1.}),
+            pointMass(pointMass) {}
+
         /*!
          * Calculate the total particle mass.
          *
@@ -77,5 +93,4 @@ class Particle
          * \return.
          */
         void write();
-
 };

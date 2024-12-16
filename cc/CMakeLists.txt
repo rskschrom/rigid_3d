@@ -12,11 +12,11 @@ set(CMAKE_CXX_FLAGS "-O3 -Wall")
 include(FetchContent)
 
 # get fmt library
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 11.0.2
-    )
+#FetchContent_Declare(
+#    fmt
+#    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#    GIT_TAG 11.0.2
+#    )
     
 # get the eigen library
 FetchContent_Declare(
@@ -26,10 +26,11 @@ FetchContent_Declare(
     )
 
 FetchContent_MakeAvailable(Eigen)  
-FetchContent_MakeAvailable(fmt)
+#FetchContent_MakeAvailable(fmt)
 
 # set external libs
-set(EXTERNAL_LIBS fmt::fmt Eigen3::Eigen)
+#set(EXTERNAL_LIBS fmt::fmt Eigen3::Eigen)
+set(EXTERNAL_LIBS Eigen3::Eigen)
 
 # includes
 include_directories(${CMAKE_SOURCE_DIR}/include)

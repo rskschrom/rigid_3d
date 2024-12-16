@@ -1,4 +1,5 @@
 #include "particle.h"
+#include "io.h"
 
 float Particle::totalMass()
 {
@@ -77,6 +78,10 @@ std::vector<float> Particle::inertiaMomentTensor()
     }
     return inerm;
 }
-        
-void Particle::write(){}
+
+void Particle::write()
+{
+    writeVector(comPos, "position.txt");
+    writeVector(orient, "orientation.txt");
+}
 
