@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include <iomanip>
 #include <string>
 #include <math.h>
 #include <vector>
@@ -10,7 +11,7 @@ std::vector<float> readPoints(std::string fname)
 {
     int npar;
     std::vector<float> r;
-    int xv, yv, zv;
+    float xv, yv, zv;
     float mnx, mny, mnz;
     
     // read position data from a file (indices; no header)
@@ -39,6 +40,7 @@ std::vector<float> readPoints(std::string fname)
         mnx += xv;
         mny += yv;
         mnz += zv;
+
     }
   
     ifile.close();
@@ -60,6 +62,10 @@ std::vector<float> readPoints(std::string fname)
 void writeVector(std::vector<float> vec, std::string outFile)
 {
     std::ofstream file_vec(outFile);
-    std::ostream_iterator<float> fiter(file_vec, "\n");
-    std::copy(vec.begin(), vec.end(), fiter);   
+    //std::ostream_iterator<float> fiter(file_vec, "\n");
+    //std::copy(vec.begin(), vec.end(), fiter);
+
+    for (auto const &elem : vec) {
+        file_vec << std::setw(11) << std::setprecision(7) << std::fixed << elem << "\n";
+    }
 }

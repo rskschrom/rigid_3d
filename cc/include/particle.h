@@ -3,11 +3,17 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
+#include <Eigen/Dense>
 #include "io.h"
 
 /// Class for particle object
 class Particle
 {   
+
+    private:
+        /// tensors (defined in principal axes reference frame of body)
+        Eigen::Matrix3f matInerm, matIInerm;
+
     public:
     
         /// initial properties
@@ -15,9 +21,9 @@ class Particle
         std::vector<float> comPos = std::vector<float>(3);
         std::vector<float> comVel = std::vector<float>(3);
         std::vector<float> orient = std::vector<float>(4);
-        std::vector<float> omega = std::vector<float>(4);
+        std::vector<float> omega = std::vector<float>(3);
         float pointMass;
-    
+
         /*!
          * Default constructor.
          *
@@ -40,7 +46,7 @@ class Particle
             comVel(comVel),
             orient(orient),
             omega(omega),
-            pointMass(pointMass) {}
+            pointMass(pointMass) { initialize(); }
                  
         /*!
          * Constructor with everthing set to zero except relative points
@@ -53,9 +59,9 @@ class Particle
             relPoints(relPoints),
             comPos(3, 0.),
             comVel(3, 0.),
-            orient({0.,0.,0.,1.}),
-            omega(4, 0.),
-            pointMass(pointMass) {}  
+            orient({1.,0.,0.,0.}),
+            omega(3, 0.),
+            pointMass(pointMass) { initialize(); }  
          
         /*!
          * Constructor with relative points read in from file
@@ -68,9 +74,9 @@ class Particle
             relPoints(readPoints(relPointFile)),
             comPos(3, 0.),
             comVel(3, 0.),
-            orient({0.,0.,0.,1.}),
-            omega(4, 0.),
-            pointMass(pointMass) {}
+            orient({1.,0.,0.,0.}),
+            omega(3, 0.),
+            pointMass(pointMass) { initialize(); }
             
         /*!
          * Constructor with relative points read in from file
@@ -90,7 +96,14 @@ class Particle
             comVel(comVel),
             orient(orient),
             omega(omega),
-            pointMass(pointMass) {}
+            pointMass(pointMass) { initialize(); }
+
+        /*!
+         * Calculate the particle tensors and set base
+         * orientation to their principal axes
+         *
+         */
+        void initialize();
 
         /*!
          * Calculate the total particle mass.
@@ -119,4 +132,60 @@ class Particle
          * \return.
          */
         void write();
+
+        /*!
+         * Set the inertia momentum tensor
+         *
+         * \param imat inertia momentum tensor.
+         */
+        void setMatInerm(Eigen::Matrix3f imat){ matInerm = imat; }
+
+        /*!
+         * Set the inverse inertia momentum tensor
+         *
+         * \param iimat inverse inertia momentum tensor.
+         */
+        void setMatIInerm(Eigen::Matrix3f iimat){ matIInerm = iimat; }
+
+        /*!
+         * Set particle center of mass position
+         *
+         * \param pos
+         */
+        void setComPos(std::vector<float> pos){ comPos = pos; }
+
+        /*!
+         * Set particle velocity
+         *
+         * \param vel
+         */
+        void setComVel(std::vector<float> vel){ comVel = vel; }
+
+        /*!
+         * Set particle orientation
+         *
+         * \param ori
+         */
+        void setOrient(std::vector<float> ori){ orient = ori; }
+
+        /*!
+         * Set particle angular velocity
+         *
+         * \param ome
+         */
+        void setOmega(std::vector<float> ome){ omega = ome; }
+
+        /*!
+         * Get the inertia momentum tensor
+         *
+         * \return matInerm inertia momentum tensor.
+         */
+        Eigen::Matrix3f getMatInerm() { return matInerm; }
+
+        /*!
+         * Get the inverse inertia momentum tensor
+         *
+         * \return matIInerm inverse inertia momentum tensor.
+         */
+        Eigen::Matrix3f getMatIInerm(){ return matIInerm; }
 };

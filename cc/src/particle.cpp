@@ -1,4 +1,5 @@
 #include "particle.h"
+#include "matrix.h"
 
 float Particle::totalMass()
 {
@@ -76,6 +77,25 @@ std::vector<float> Particle::inertiaMomentTensor()
         }
     }
     return inerm;
+}
+
+void Particle::initialize()
+{
+    // get inertia tensor and inverse
+    std::vector<float> inerm = inertiaMomentTensor();
+    Eigen::Matrix3f matInerm = fvecMat(inerm);
+    Eigen::Matrix3f matIInerm = matrixInv(matInerm);
+    
+    // get principal axes of inertia momentum tensor
+    Eigen::Matrix3f matInermPA, matIInermPA;
+    Eigen::EigenSolver<Eigen::Matrix3f> es(matInerm);
+    Eigen::Matrix3f eigVecs = es.eigenvectors().real();
+
+    matInermPA = eigVecs.transpose() * matInerm * eigVecs;
+    matIInermPA = eigVecs.transpose() * matIInerm * eigVecs;
+    setMatInerm(matInermPA);
+    setMatIInerm(matIInermPA);
+    
 }
 
 void Particle::write()

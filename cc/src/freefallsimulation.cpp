@@ -21,7 +21,7 @@ void FreeFallSimulation::evolveMotionInertial(int nstepUser)
     }
   
     for (int i = 0; i < nstep; i++){
-        dq = multiply(par.omega, par.orient);
+        dq = multiplyVecQuat(par.omega, par.orient);
 
         // update body position and velocity
         for (int i = 0; i < 4; i++){
@@ -46,11 +46,17 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     Eigen::Matrix3f matInerm, matIInerm;
     int nstep;
     
-    // calculate inertia moment tensor and inverse
-    inerm = par.inertiaMomentTensor();
-    matInerm = fvecMat(inerm);
-    matIInerm = matrixInv(matInerm);
-    
+    // get inertia moment tensor and inverse
+    matInerm = par.getMatInerm();
+    matIInerm = par.getMatIInerm();
+
+    // rotate torque and angular to body reference frame
+    std::vector<float> omegaBody, torqueBody;
+    omegaBody = vecRotate(par.omega, par.orient);
+    torqueBody = vecRotate(torque, par.orient);
+    Eigen::Vector3f omegaBV(omegaBody.data()), torqueBV(torqueBody.data());
+    Eigen::Vector3f dOmegaBV;
+        
     // use simulation nsteps if no value is provided
     if (nstepUser==0){
         nstep = nt;
@@ -60,7 +66,9 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     }
   
     for (int i = 0; i < nstep; i++){
-        dq = multiply(par.omega, par.orient);
+        std::cout << i << "time step." << std::endl;
+        std::cout << omegaBody[0] << " " << omegaBody[1] << " " << omegaBody[2] << " " << std::endl;
+        dq = multiplyVecQuat(par.omega, par.orient);
 
         // update body position and velocity
         for (int i = 0; i < 4; i++){
@@ -71,10 +79,19 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
             par.comPos[i] += dt*par.comVel[i];
         }
         
-        // update angular velocity with torque
-        for (int i = 0; i < 4; i++){
-            par.omega[i] += dt*torque[i];
+        // update angular velocity
+        dOmegaBV = matIInerm*(torqueBV-omegaBV.cross(matInerm*omegaBV));
+        std::cout << dOmegaBV << std::endl;
+        
+        for (int i = 0; i < 3; i++){
+            omegaBody[i] += dt*dOmegaBV[i];
         }
+
+        // rotate new angular velocity to world reference frame
+        par.setOmega(vecRotate(omegaBody, conj(par.orient)));
+
+        //std::cout << omegaBody[0] << " " << omegaBody[1] << " " << omegaBody[2] << " " << std::endl;
+        std::cout << torqueBV << std::endl;
         
         // save motion history
         posHistory.insert(posHistory.end(), std::begin(par.comPos), std::end(par.comPos));
