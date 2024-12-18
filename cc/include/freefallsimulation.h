@@ -6,6 +6,9 @@
 #include "simulation.h"
 #include "particle.h"
 
+#ifndef FREEFALLSIMULATION_H
+#define FREEFALLSIMULATION_H
+
 /// Class for free-fall simulations
 class FreeFallSimulation: public Simulation
 {   
@@ -55,8 +58,16 @@ class FreeFallSimulation: public Simulation
         void evolveMotionInertial(int nstep = 0);
         
         /*!
+         * Integrate simulation forward with buoyancy torque.
+         *
+         * \param nstep the number of time steps to integrate
+         */    
+        void evolveMotionBuoyancy(int nstep = 0);
+        
+        /*!
          * Write history arrays.
          *
          */
         void writeHistories();
 };
+#endif

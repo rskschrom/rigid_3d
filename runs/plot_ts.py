@@ -20,6 +20,6 @@ sf = 5
 
 print(alpha[::sf])
 
-plt.plot(ts[::sf], np.cos(alpha[::sf]*np.pi/180.), 'k-')
+#plt.plot(ts[::sf], np.cos(alpha[::sf]*np.pi/180.), 'k-')
 plt.plot(ts[::sf], np.cos(beta[::sf]*np.pi/180.), 'r-')
 plt.savefig('euler_ts.png')

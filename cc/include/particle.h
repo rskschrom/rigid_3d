@@ -6,6 +6,9 @@
 #include <Eigen/Dense>
 #include "io.h"
 
+#ifndef PARTICLE_H
+#define PARTICLE_H
+
 /// Class for particle object
 class Particle
 {   
@@ -189,3 +192,5 @@ class Particle
          */
         Eigen::Matrix3f getMatIInerm(){ return matIInerm; }
 };
+
+#endif

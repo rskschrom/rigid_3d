@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.28)
 project("AggCol")
 
 cmake_policy(SET CMP0135 NEW)
@@ -23,6 +23,7 @@ FetchContent_Declare(
     Eigen
     GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
     GIT_TAG master
+    EXCLUDE_FROM_ALL
     )
 
 FetchContent_MakeAvailable(Eigen)  

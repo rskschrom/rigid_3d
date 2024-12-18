@@ -3,6 +3,7 @@
 #include <string>
 #include <math.h>
 #include <vector>
+#include <Eigen/Dense>
 
 // mutliplication of quaternions
 std::vector<float> multiply(std::vector<float> q1, std::vector<float> q2){
@@ -28,6 +29,20 @@ std::vector<float> multiplyVecQuat(std::vector<float> v, std::vector<float> q){
     qm[1] = r1*v2x+r2*v1x+v1y*v2z-v1z*v2y;
     qm[2] = r1*v2y+r2*v1y-v1x*v2z+v1z*v2x;
     qm[3] = r1*v2z+r2*v1z+v1x*v2y-v1y*v2x;
+  
+    return qm;
+}
+
+// mutliplication of vector (0,vx,vy,vz) and quaternion for eigen vectors
+Eigen::Vector4f multiplyVecQuatEigen(Eigen::Vector3f v, Eigen::Vector4f q){
+    Eigen::Vector4f qm;
+    float r1 = 0., v1x = v(0), v1y = v(1), v1z = v(2);
+    float r2 = q(0), v2x = q(1), v2y = q(2), v2z = q(3);
+  
+    qm(0) = r1*r2-v1x*v2x-v1y*v2y-v1z*v2z;
+    qm(1) = r1*v2x+r2*v1x+v1y*v2z-v1z*v2y;
+    qm(2) = r1*v2y+r2*v1y-v1x*v2z+v1z*v2x;
+    qm(3) = r1*v2z+r2*v1z+v1x*v2y-v1y*v2x;
   
     return qm;
 }
