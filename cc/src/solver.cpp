@@ -4,6 +4,7 @@
 #include <vector>
 #include "quat.h"
 #include "matrix.h"
+#include "buoyancy.h"
 
 /*
 // AB2 solver for omega and orient
@@ -45,10 +46,12 @@ Eigen::Vector3f omegaF(Eigen::Vector3f omegaV, Eigen::Vector3f torqueV,
 {
     Eigen::Vector3f dOmega;
     
-    dOmega = matIInerm*(torqueV-omegaV.cross(matInerm*omegaV));
+    //dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
+    dOmega = matIInerm * torqueV;
     
     return dOmega;
 }
+
 
 // RK4 solver for omega and orient
 std::vector<float> rigidMotionRK4(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,

@@ -47,6 +47,7 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     std::vector<float> inerm;
     Eigen::Matrix3f matInerm, matIInerm;
     int nstep;
+    float qNorm;
     
     // get inertia moment tensor and inverse
     matInerm = par.getMatInerm();
@@ -56,6 +57,7 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     std::vector<float> omegaBody, torqueBody;
     std::vector<float> orientWorld(4);
     std::vector<float> solVector(7);
+    
     omegaBody = vecRotate(par.omega, par.orient);
     torqueBody = vecRotate(torque, par.orient);
     Eigen::Vector3f omegaBV(omegaBody.data()), torqueBV(torqueBody.data());
@@ -99,6 +101,11 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
         }
         
         par.setOrient(orientWorld);
+        
+        // test quaternion norm
+        qNorm = orientWorld[0]*orientWorld[0]+orientWorld[1]*orientWorld[1]+
+                orientWorld[2]*orientWorld[2]+orientWorld[3]*orientWorld[3];
+        std::cout << qNorm << "\tqNorm" << std::endl;
 
         // rotate new angular velocity to world reference frame
         par.setOmega(vecRotate(omegaBody, conj(par.orient)));

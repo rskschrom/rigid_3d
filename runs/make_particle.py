@@ -22,4 +22,4 @@ cr = Crystal(bp, c_axis)
 dip_len = 0.1
 cr.create_dipoles(dip_len)
 #cr.write_dipoles('crystal.txt')
-cr.write_points('crystal_points.txt', dip_len)
+cr.write_points('crystal_points.txt', dip_len*1.e-3)
