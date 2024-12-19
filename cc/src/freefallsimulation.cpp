@@ -90,7 +90,7 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
         // test quaternion norm
         qNorm = orientWorld[0]*orientWorld[0]+orientWorld[1]*orientWorld[1]+
                 orientWorld[2]*orientWorld[2]+orientWorld[3]*orientWorld[3];
-        std::cout << qNorm << "\tqNorm" << std::endl;
+        //std::cout << qNorm << "\tqNorm" << std::endl;
 
         // rotate new angular velocity to world reference frame
         par.setOmega(vecRotate(omegaBody, par.orient));
