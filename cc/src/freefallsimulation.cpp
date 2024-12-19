@@ -72,25 +72,7 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     }
   
     for (int i = 0; i < nstep; i++){
-        /*
-        dq = multiplyVecQuat(par.omega, par.orient);
 
-        // update body position and velocity
-        for (int i = 0; i < 4; i++){
-            par.orient[i] += dt*0.5*dq[i];
-        }
-  
-        for (int i = 0; i < 3; i++){
-            par.comPos[i] += dt*par.comVel[i];
-        }
-        
-        // update angular velocity
-        dOmegaBV = matIInerm*(torqueBV-omegaBV.cross(matInerm*omegaBV));
-        
-        for (int i = 0; i < 3; i++){
-            omegaBody[i] += dt*dOmegaBV[i];
-        }
-        */
         solVector = rigidMotionRK4(omegaBV, orientV, torqueBV,
                                    matInerm, matIInerm, dt);
         for (int i = 0; i < 3; i++){
@@ -136,13 +118,8 @@ void FreeFallSimulation::evolveMotionBuoyancy(int nstepUser)
     
         // apply buoyancy torque
         torqueBuoyancy = calcBuoyancyTorque(par, g);
-        //std::cout << torqueBuoyancy[0] << "\t" << torqueBuoyancy[1] << "\t" << torqueBuoyancy[2] << std::endl;
         evolveMotion(torqueBuoyancy, 1);
 
-        // save motion history
-        //posHistory.insert(posHistory.end(), std::begin(par.comPos), std::end(par.comPos));
-        //orientHistory.insert(orientHistory.end(), std::begin(par.orient), std::end(par.orient));
-        //incrSimStep();
     }
 }
 
