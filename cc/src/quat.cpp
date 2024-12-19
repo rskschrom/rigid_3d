@@ -58,6 +58,17 @@ std::vector<float> conj(std::vector<float> q){
     return cq;
 }
 
+// conjugate of quaternion for eigen type
+Eigen::Vector4f conj(Eigen::Vector4f q){
+    Eigen::Vector4f cq;
+    cq(0) = q(0);
+    cq(1) = -q(1);
+    cq(2) = -q(2);
+    cq(3) = -q(3);
+    
+    return cq;
+}
+
 // rotate pure quaternion (vector) with unit quaternion (versor)
 std::vector<float> vecRotate(std::vector<float> v, std::vector<float> q){
     std::vector<float> vr(3);

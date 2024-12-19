@@ -64,7 +64,7 @@ print(points.shape)
 # plot
 dp = 4.
 pl = pv.Plotter(notebook=False, off_screen=True)
-pl.open_gif('test.gif', fps=20)
+pl.open_movie('test.mp4', framerate=20)
 pl.window_size = [800,800]
 
 pl.enable_eye_dome_lighting()

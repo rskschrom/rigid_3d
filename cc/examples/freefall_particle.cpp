@@ -6,13 +6,14 @@
 #include <vector>
 #include "freefallsimulation.h"
 #include "buoyancy.h"
+#include "quat.h"
 
 int main(void){
 
     std::vector<float> com;
     std::vector<float> vel;
     std::vector<float> orient;
-    std::vector<float> omega;
+    std::vector<float> omega, omegaB;
     std::vector<float> torque;
     
     float pmass = 920.*pow(0.1*1.e-3, 3.);
@@ -23,9 +24,16 @@ int main(void){
     // perform freefall simulation with initial velocity and angular velocity
     com = {0.,0.05,0.4};
     vel = {0.,0.,0.};
-    orient = {cosf(theta*pi/180./2.),sinf(theta*pi/180./2.),0.,0.};
+    orient = {cosf(theta*pi/180./2.),0.,sinf(theta*pi/180./2.),0.};
     //omega = {0.,0.,10.};
-    omega = {0.,0.,0.2};
+    omega = vecRotate({0.,0.,0.2}, orient);
+    omegaB = vecRotate(omega, conj(orient));
+
+    std::cout << omega[0] << "\t" << omega[1] << "\t" << omega[2] << "\t"
+              << "\tomega world" << std::endl;
+              
+    std::cout << omegaB[0] << "\t" << omegaB[1] << "\t" << omegaB[2] << "\t"
+              << "\tomega body" << std::endl;
 
     Particle par = Particle("crystal_points.txt", pmass);
     par.setComPos(com);
@@ -35,14 +43,14 @@ int main(void){
     
     writeVector(par.relPoints, "r.txt");
     
-    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, -3.);
+    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, -6.);
 
     //torque = {0.,0.,-0.000004};
     //ffsim.evolveMotion(torque, nstep=1);
     ffsim.evolveMotionBuoyancy(nstep=20000);
     //ffsim.evolveMotionInertial(nstep=999);
     //ffsim.evolveMotion(torque, nstep=1);
-    //ffsim.evolveMotionInertial(nstep=1999);
+    //ffsim.evolveMotionInertial(nstep=20000);
     ffsim.writeHistories();
     
     std::cout << ffsim.getSimStep() << "\n" << std::endl;

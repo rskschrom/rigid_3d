@@ -16,4 +16,8 @@ std::vector<float> rigidMotionRK4(Eigen::Vector3f omegaV, Eigen::Vector4f orient
                                   Eigen::Vector3f torqueV,
                                   Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
                                   float dt, float g);
+std::vector<float> rigidMotionEB(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
+                                 Eigen::Vector3f torqueV,
+                                 Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
+                                 float dt, float g);
 #endif

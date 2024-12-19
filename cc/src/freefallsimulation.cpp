@@ -58,8 +58,8 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     std::vector<float> orientWorld(4);
     std::vector<float> solVector(7);
     
-    omegaBody = vecRotate(par.omega, par.orient);
-    torqueBody = vecRotate(torque, par.orient);
+    omegaBody = vecRotate(par.omega, conj(par.orient));
+    torqueBody = vecRotate(torque, conj(par.orient));
     Eigen::Vector3f omegaBV(omegaBody.data()), torqueBV(torqueBody.data());
     Eigen::Vector4f orientV(par.orient.data());
         
@@ -73,8 +73,11 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
   
     for (int i = 0; i < nstep; i++){
 
-        solVector = rigidMotionRK4(omegaBV, orientV, torqueBV,
-                                   matInerm, matIInerm, dt, g);
+        //solVector = rigidMotionRK4(omegaBV, orientV, torqueBV,
+        //                           matInerm, matIInerm, dt, g);
+        solVector = rigidMotionEB(omegaBV, orientV, torqueBV,
+                                  matInerm, matIInerm, dt, g);
+                                   
         for (int i = 0; i < 3; i++){
             omegaBody[i] = solVector[i];
         }
@@ -90,8 +93,9 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
         std::cout << qNorm << "\tqNorm" << std::endl;
 
         // rotate new angular velocity to world reference frame
-        par.setOmega(vecRotate(omegaBody, conj(par.orient)));
-
+        par.setOmega(vecRotate(omegaBody, par.orient));
+        //par.setOmega(omegaBody);
+        
         // save motion history
         posHistory.insert(posHistory.end(), std::begin(par.comPos), std::end(par.comPos));
         orientHistory.insert(orientHistory.end(), std::begin(par.orient), std::end(par.orient));

@@ -60,10 +60,10 @@ Eigen::Vector3f omegaBuoyF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
     
     // get buoyancy torque and transform to body reference frame
     torqueWV = calcBuoyancyTorque(matInerm, orientV, g);
-    torqueV = vecRotate(torqueWV, orientV);
+    torqueV = vecRotate(torqueWV, conj(orientV));
     
-    //dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
-    dOmega = matIInerm * torqueV;
+    dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
+    //dOmega = matIInerm * torqueV;
     
     return dOmega;
 }
@@ -91,23 +91,66 @@ std::vector<float> rigidMotionRK4(Eigen::Vector3f omegaV, Eigen::Vector4f orient
     q2n = orientV+dt/2.*kq1;
     o2n = omegaV+dt/2.*ko1;
     kq2 = orientF(o2n, q2n);
-    ko2 = omegaF(o2n, torqueV, matInerm,  matIInerm);
+    //ko2 = omegaF(o2n, torqueV, matInerm,  matIInerm);
+    ko2 = omegaBuoyF(o2n, q2n, matInerm, matIInerm, g);
     
     // step 3
     q3n = orientV+dt/2.*kq2;
     o3n = omegaV+dt/2.*ko2;
     kq3 = orientF(o3n, q3n);
-    ko3 = omegaF(o3n, torqueV, matInerm,  matIInerm);
+    //ko3 = omegaF(o3n, torqueV, matInerm,  matIInerm);
+    ko3 = omegaBuoyF(o3n, q3n, matInerm, matIInerm, g);
     
     // step 4
     q4n = orientV+dt*kq3;
     o4n = omegaV+dt*ko3;
     kq4 = orientF(o4n, q4n);
-    ko4 = omegaF(o4n, torqueV, matInerm,  matIInerm);
+    //ko4 = omegaF(o4n, torqueV, matInerm,  matIInerm);
+    ko4 = omegaBuoyF(o4n, q4n, matInerm, matIInerm, g);
     
     // combine results
     omegaV1 = omegaV+dt/6.*(ko1+2*ko2+2*ko3+ko4);
     orientV1 = orientV+dt/6.*(kq1+2*kq2+2*kq3+kq4);
+    
+    for (int i = 0; i < 3; i++){
+        solVector[i] = omegaV1(i);
+        solVector[3+i] = orientV1(i);
+    }
+    solVector[6] = orientV1(3);
+    
+    return solVector;
+}
+
+// Euler Backward solver for omega and orient
+std::vector<float> rigidMotionEB(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
+                                 Eigen::Vector3f torqueV,
+                                 Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
+                                 float dt, float g)
+{
+    std::vector<float> solVector(7);
+    Eigen::Vector4f orientV1;
+    Eigen::Vector3f omegaV1;
+    float qNorm;
+    
+    // initial step
+    orientV1 = orientV+dt*orientF(omegaV, orientV);
+    omegaV1 = omegaV+dt*omegaBuoyF(omegaV, orientV, matInerm, matIInerm, g);
+    //std::cout << omegaV1 << std::endl;
+    
+    // iterative solution
+    for (int k = 0; k < 1; k++){
+        orientV1 = orientV+dt*orientF(omegaV1, orientV1);
+        omegaV1 = omegaV+dt*omegaBuoyF(omegaV1, orientV1, matInerm, matIInerm, g);
+        //std::cout << omegaV1 << std::endl;
+    }
+    
+    // renorm orientation if necessary
+    qNorm = orientV1(0)*orientV1(0)+orientV1(1)*orientV1(1)+
+            orientV1(2)*orientV1(2)+orientV1(3)*orientV1(3);
+            
+    if (abs(qNorm-1.)>1.e-4){
+        orientV1 = orientV1/sqrt(qNorm);
+    }
     
     for (int i = 0; i < 3; i++){
         solVector[i] = omegaV1(i);
