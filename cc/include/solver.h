@@ -10,7 +10,10 @@
 Eigen::Vector4f orientF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV);
 Eigen::Vector4f omegaF(Eigen::Vector3f omegaV, Eigen::Vector3f torqueV,
                        Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm);
+Eigen::Vector4f omegaBuoyF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
+                           Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm, float g);
 std::vector<float> rigidMotionRK4(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
                                   Eigen::Vector3f torqueV,
-                                  Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm, float dt);
+                                  Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
+                                  float dt, float g);
 #endif

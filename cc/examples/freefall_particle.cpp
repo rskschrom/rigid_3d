@@ -17,7 +17,7 @@ int main(void){
     
     float pmass = 920.*pow(0.1*1.e-3, 3.);
     int nstep = 2500;
-    float theta = 30.;
+    float theta = 10.;
     float pi = 3.14159265;
     
     // perform freefall simulation with initial velocity and angular velocity
@@ -25,7 +25,7 @@ int main(void){
     vel = {0.,0.,0.};
     orient = {cosf(theta*pi/180./2.),sinf(theta*pi/180./2.),0.,0.};
     //omega = {0.,0.,10.};
-    omega = {0.,0.,0.};
+    omega = {0.,0.,0.2};
 
     Particle par = Particle("crystal_points.txt", pmass);
     par.setComPos(com);
@@ -35,7 +35,7 @@ int main(void){
     
     writeVector(par.relPoints, "r.txt");
     
-    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, -9.81);
+    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, -3.);
 
     //torque = {0.,0.,-0.000004};
     //ffsim.evolveMotion(torque, nstep=1);

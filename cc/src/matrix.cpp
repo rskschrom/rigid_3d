@@ -60,3 +60,29 @@ Eigen::Matrix3f quatToMatrix(std::vector<float> q)
     
     return rmat;
 }
+
+// convert quaternion to rotation matrix
+Eigen::Matrix3f quatToMatrix(Eigen::Vector4f q)
+{
+    Eigen::Matrix3f rmat;
+    float w, x, y, z;
+    
+    w = q(0);
+    x = q(1);
+    y = q(2);
+    z = q(3);
+    
+    // set matrix values
+    rmat(0,0) = 1.-2.*(y*y+z*z);
+    rmat(1,1) = 1.-2.*(x*x+z*z);
+    rmat(2,2) = 1.-2.*(x*x+y*y);
+    
+    rmat(0,1) = 2.*x*y-2.*w*z;
+    rmat(1,0) = 2.*x*y+2.*w*z;
+    rmat(0,2) = 2.*w*y+2.*x*z;
+    rmat(2,0) = 2.*x*z-2.*w*y;
+    rmat(1,2) = 2.*y*z-2.*w*x;
+    rmat(2,1) = 2.*w*x+2.*y*z;
+    
+    return rmat;
+}

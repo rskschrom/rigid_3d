@@ -34,7 +34,7 @@ std::vector<float> multiplyVecQuat(std::vector<float> v, std::vector<float> q){
 }
 
 // mutliplication of vector (0,vx,vy,vz) and quaternion for eigen vectors
-Eigen::Vector4f multiplyVecQuatEigen(Eigen::Vector3f v, Eigen::Vector4f q){
+Eigen::Vector4f multiplyVecQuat(Eigen::Vector3f v, Eigen::Vector4f q){
     Eigen::Vector4f qm;
     float r1 = 0., v1x = v(0), v1y = v(1), v1z = v(2);
     float r2 = q(0), v2x = q(1), v2y = q(2), v2z = q(3);
@@ -76,6 +76,28 @@ std::vector<float> vecRotate(std::vector<float> v, std::vector<float> q){
     vr[0] = a*v[0]+b*q[1]+c*(v[1]*q[3]-v[2]*q[2]);
     vr[1] = a*v[1]+b*q[2]+c*(v[2]*q[1]-v[0]*q[3]);
     vr[2] = a*v[2]+b*q[3]+c*(v[0]*q[2]-v[1]*q[1]);
+
+    return vr;
+}
+
+// rotate pure quaternion (vector) with unit quaternion (versor) for eigen types
+Eigen::Vector3f vecRotate(Eigen::Vector3f v, Eigen::Vector4f q){
+    Eigen::Vector3f vr;
+    float a, b, c;
+
+    a = q(0)*q(0)-
+        q(1)*q(1)-
+        q(2)*q(2)-
+        q(3)*q(3);  
+    b = 2.*(v(0)*q(1)+
+            v(1)*q(2)+
+            v(2)*q(3));
+    c = -2.*q(0);
+  
+    // vr = a*p+b*v+c*pxv
+    vr(0) = a*v(0)+b*q(1)+c*(v(1)*q(3)-v(2)*q(2));
+    vr(1) = a*v(1)+b*q(2)+c*(v(2)*q(1)-v(0)*q(3));
+    vr(2) = a*v(2)+b*q(3)+c*(v(0)*q(2)-v(1)*q(1));
 
     return vr;
 }

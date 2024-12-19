@@ -35,7 +35,7 @@ Eigen::Vector4f orientF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV)
 {
     Eigen::Vector4f dOrient;
     
-    dOrient = 0.5*multiplyVecQuatEigen(omegaV, orientV);
+    dOrient = 0.5*multiplyVecQuat(omegaV, orientV);
     
     return dOrient;
 }
@@ -52,11 +52,27 @@ Eigen::Vector3f omegaF(Eigen::Vector3f omegaV, Eigen::Vector3f torqueV,
     return dOmega;
 }
 
+// operator for angular velocity with dynamic buoyancy
+Eigen::Vector3f omegaBuoyF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
+                           Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm, float g)
+{
+    Eigen::Vector3f dOmega, torqueWV, torqueV;
+    
+    // get buoyancy torque and transform to body reference frame
+    torqueWV = calcBuoyancyTorque(matInerm, orientV, g);
+    torqueV = vecRotate(torqueWV, orientV);
+    
+    //dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
+    dOmega = matIInerm * torqueV;
+    
+    return dOmega;
+}
 
 // RK4 solver for omega and orient
 std::vector<float> rigidMotionRK4(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
                                   Eigen::Vector3f torqueV,
-                                  Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm, float dt)
+                                  Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
+                                  float dt, float g)
 {
     std::vector<float> solVector(7);
     Eigen::Vector4f orientV1;
@@ -68,7 +84,8 @@ std::vector<float> rigidMotionRK4(Eigen::Vector3f omegaV, Eigen::Vector4f orient
 
     // step 1
     kq1 = orientF(omegaV, orientV);
-    ko1 = omegaF(omegaV, torqueV, matInerm,  matIInerm);
+    //ko1 = omegaF(omegaV, torqueV, matInerm,  matIInerm);
+    ko1 = omegaBuoyF(omegaV, orientV, matInerm, matIInerm, g);
     
     // step 2
     q2n = orientV+dt/2.*kq1;
