@@ -7,7 +7,7 @@ enable_language(CXX)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/../install)
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
-set(CMAKE_CXX_FLAGS "-O3 -Wall")
+set(CMAKE_CXX_FLAGS "-O3 -Wall -fPIC")
 
 include(FetchContent)
 
