@@ -101,7 +101,7 @@ void Particle::initialize()
     std::vector<int> indSort = {0, 1, 2};
     std::vector<float> eigVals = {a, b, c};
     
-    std::cout << eigVals[0] << "\t" << eigVals[1] << "\t" << eigVals[2] << std::endl;
+    //std::cout << eigVals[0] << "\t" << eigVals[1] << "\t" << eigVals[2] << std::endl;
     
     if (eigVals[0]>eigVals[1]){
         tmpVal = eigVals[0];
@@ -128,7 +128,7 @@ void Particle::initialize()
         indSort[2] = tmpInd;
     }
     
-    std::cout << indSort[0] << "\t" << indSort[1] << "\t" << indSort[2] << std::endl;
+    //std::cout << indSort[0] << "\t" << indSort[1] << "\t" << indSort[2] << std::endl;
     
     // permute matrix
     for (int i = 0; i<3; i++){

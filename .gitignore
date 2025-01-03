@@ -8,4 +8,5 @@ cc/src/old_files/
 cc/include/old_files/
 env/
 install/
+py/build*
 
