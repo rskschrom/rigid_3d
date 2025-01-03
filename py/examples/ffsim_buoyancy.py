@@ -16,20 +16,18 @@ def get_euler(orient):
 # create particle and do simulation
 dip_len = 0.1*1.e-3
 par = Particle('../tests/data/crystal_points.txt', 920.*dip_len**3.)
-par.set_omega_body([0.,0.,0.2])
-
-
-
 dt = 1.e-3
 
 # loop over different initial zenith angles
 zens = np.arange(5)*10.+5.
+omegaz = np.arange(5)*0.1+0.1
 bets = [None]*5
 
 for i in range(5):
     print(zens[i])
+    par.set_omega_body([0.,0.,0.2])
     par.set_orient_zenith(zens[i])
-    ffsim = FreeFallSimulation(par, 20000, dt, -25.)
+    ffsim = FreeFallSimulation(par, 20000, dt, -10.)
     ffsim.evolve_motion_buoyancy()
     orient = ffsim.get_orient_history()
     alp, bet = get_euler(orient)

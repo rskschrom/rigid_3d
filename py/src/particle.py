@@ -39,6 +39,8 @@ class Particle():
         return
         
     def get_rel_points(self):
-        return self._Particle.relPoints
+        rel_points = np.array(self._Particle.relPoints)
+        rel_points.shape = (int(rel_points.shape[0]/3),3)
+        return rel_points
     
     #writeVector(par.relPoints, "r.txt");

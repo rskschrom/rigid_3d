@@ -14,6 +14,9 @@ class FreeFallSimulation():
         self._FreeFallSimulation = _FreeFallSimulation(par._Particle, nt, dt, g)
         
     def get_pos_history(self):
+        '''
+        Return position history during simulation.
+        '''
         pos_history = np.array(self._FreeFallSimulation.posHistory)
         pos_history.shape = (int(pos_history.shape[0]/3),3)
         

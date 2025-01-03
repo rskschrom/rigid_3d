@@ -62,8 +62,8 @@ Eigen::Vector3f omegaBuoyF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
     torqueWV = calcBuoyancyTorque(matInerm, orientV, g);
     torqueV = vecRotate(torqueWV, conj(orientV));
     
-    dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
-    //dOmega = matIInerm * torqueV;
+    //dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
+    dOmega = matIInerm * torqueV;
     
     return dOmega;
 }
