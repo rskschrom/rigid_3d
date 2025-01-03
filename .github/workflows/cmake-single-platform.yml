@@ -35,3 +35,6 @@ jobs:
     - name: Build Python Package
       run: cd py && pip install . -v
 
+    - name: Build Python Doc
+      run: cd py/docs && make html
+
