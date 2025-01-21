@@ -5,6 +5,7 @@
 #include <string>
 #include <math.h>
 #include <vector>
+#include <stdexcept>
 
 // read point particles from text file
 std::vector<float> readPoints(std::string fname)
@@ -16,6 +17,9 @@ std::vector<float> readPoints(std::string fname)
     
     // read position data from a file (indices; no header)
     std::ifstream ifile;
+    if (not std::filesystem::exists(fname)){
+        throw std::invalid_argument("Requested file does not exist!");
+    }
     ifile.open(fname);
   
     // skip 3 comment lines at beginning of file

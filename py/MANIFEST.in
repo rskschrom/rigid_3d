@@ -1,1 +1,2 @@
-recursive-include src/pybind11_lib/ *.so
+recursive-include src/pybind11_lib/ *
+

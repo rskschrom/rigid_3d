@@ -1,6 +1,7 @@
 from .pybind11_lib._particle import Particle as _Particle
 from .pybind11_lib._quat import quat
 import numpy as np
+import os
 
 class Particle():
     '''
@@ -9,8 +10,12 @@ class Particle():
     def __init__(self, point_file, point_masses):
         self.point_file = point_file
         self.point_mass = point_masses
-        self._Particle = _Particle(point_file, point_masses)
         
+        try:
+            self._Particle = _Particle(point_file, point_masses)
+        except:
+            print("File not found.")       
+
     def set_com_pos(self, pos):
         self._Particle.setComPos(pos)
         return
