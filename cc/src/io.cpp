@@ -6,6 +6,7 @@
 #include <math.h>
 #include <vector>
 #include <stdexcept>
+#include <filesystem>
 
 // read point particles from text file
 std::vector<float> readPoints(std::string fname)

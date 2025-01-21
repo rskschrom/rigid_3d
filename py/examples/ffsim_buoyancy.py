@@ -14,7 +14,7 @@ def get_euler(orient):
     return alpha, beta
 
 # create particle and do simulation
-dip_len = 0.1*1.e-3
+dip_len = 0.015*1.e-3
 par = Particle('../tests/data/crystal_points.txt', 920.*dip_len**3.)
 dt = 1.e-3
 
