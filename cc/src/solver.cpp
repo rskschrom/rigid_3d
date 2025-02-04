@@ -34,8 +34,12 @@ std::vector<float> rigidMotionAB2(Eigen::Vector3f omegaV, Eigen::Vector4f orient
 Eigen::Vector4f orientF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV)
 {
     Eigen::Vector4f dOrient;
+    Eigen::Vector3f omegaWV;
     
-    dOrient = 0.5*multiplyVecQuat(omegaV, orientV);
+    // get omega in world reference frame
+    omegaWV = vecRotate(omegaV, orientV);
+    
+    dOrient = 0.5*multiplyVecQuat(omegaWV, orientV);
     
     return dOrient;
 }
@@ -63,8 +67,8 @@ Eigen::Vector3f omegaBuoyF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
     torqueWV = calcBuoyancyTorque(matInerm, orientV, g, rhofGrad, rhob);
     torqueV = vecRotate(torqueWV, conj(orientV));
     
-    //dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
-    dOmega = matIInerm * torqueV;
+    dOmega = matIInerm * (torqueV-omegaV.cross(matInerm * omegaV));
+    //dOmega = matIInerm * torqueV;
     
     return dOmega;
 }
@@ -118,9 +122,9 @@ std::vector<float> rigidMotionRK4(Eigen::Vector3f omegaV, Eigen::Vector4f orient
     qNorm = orientV1(0)*orientV1(0)+orientV1(1)*orientV1(1)+
             orientV1(2)*orientV1(2)+orientV1(3)*orientV1(3);
             
-    if (abs(qNorm-1.)>1.e-4){
-        orientV1 = orientV1/sqrt(qNorm);
-    }
+    //if (abs(qNorm-1.)>1.e-4){
+    //    orientV1 = orientV1/sqrt(qNorm);
+    //}
     
     for (int i = 0; i < 3; i++){
         solVector[i] = omegaV1(i);
@@ -170,3 +174,46 @@ std::vector<float> rigidMotionEB(Eigen::Vector3f omegaV, Eigen::Vector4f orientV
     
     return solVector;
 }
+/*
+// Leapfrog solver for omega and orient
+std::vector<float> rigidMotionLF(Eigen::Vector3f omegaV, Eigen::Vector4f orientV,
+                                 Eigen::Vector3f torqueV,
+                                 Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
+                                 float dt, float g, float rhofGrad, float rhob)
+{
+    std::vector<float> solVector(7);
+    Eigen::Vector4f orientV1;
+    Eigen::Vector3f omegaV1;
+    float qNorm;
+    
+    orientV1 = orientV+
+    
+    // initial step
+    orientV1 = orientV+dt*orientF(omegaV, orientV);
+    omegaV1 = omegaV+dt*omegaBuoyF(omegaV, orientV, matInerm, matIInerm, g, rhofGrad, rhob);
+    //std::cout << omegaV1 << std::endl;
+    
+    // iterative solution
+    for (int k = 0; k < 1; k++){
+        orientV1 = orientV+dt*orientF(omegaV1, orientV1);
+        omegaV1 = omegaV+dt*omegaBuoyF(omegaV1, orientV1, matInerm, matIInerm, g, rhofGrad, rhob);
+        //std::cout << omegaV1 << std::endl;
+    }
+    
+    // renorm orientation if necessary
+    qNorm = orientV1(0)*orientV1(0)+orientV1(1)*orientV1(1)+
+            orientV1(2)*orientV1(2)+orientV1(3)*orientV1(3);
+            
+    if (abs(qNorm-1.)>1.e-4){
+        orientV1 = orientV1/sqrt(qNorm);
+    }
+    
+    for (int i = 0; i < 3; i++){
+        solVector[i] = omegaV1(i);
+        solVector[3+i] = orientV1(i);
+    }
+    solVector[6] = orientV1(3);
+    
+    return solVector;
+}
+*/
