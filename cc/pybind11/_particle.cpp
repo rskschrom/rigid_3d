@@ -18,7 +18,10 @@ PYBIND11_MODULE(_particle, m){
     .def("setComPos", &Particle::setComPos)
     .def("setComVel", &Particle::setComVel)
     .def("setOrient", &Particle::setOrient)
-    .def("setOmega", &Particle::setOmega);
+    .def("setOmega", &Particle::setOmega)
+    
+    .def("rotationalPotentialEnergy", &Particle::rotationalPotentialEnergy)
+    .def("rotationalKineticEnergy", &Particle::rotationalKineticEnergy);
     //m.doc() = "";
 
 }

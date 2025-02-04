@@ -14,7 +14,9 @@ class FreeFallSimulation: public Simulation
 {   
     public:
     
-        /// particle object
+        /// object parameters
+        float rhofGrad;
+        float rhob;
         Particle par;
         
         /// vectors for the history of positions and orientations
@@ -28,9 +30,13 @@ class FreeFallSimulation: public Simulation
          * \param nt the number of timesteps.
          * \param dt the timestep (seconds).
          * \param g the gravitational acceleration
+         * \param rhofGrad the linear fluid density gradient
+         * \param rhob the body density
          */
-        FreeFallSimulation(Particle par, int nt, float dt, float g):
+        FreeFallSimulation(Particle par, int nt, float dt, float g, float rhofGrad, float rhob):
             Simulation(nt, dt, g),
+            rhofGrad(rhofGrad),
+            rhob(rhob),
             par(par) {}
             
         /*!
@@ -38,8 +44,10 @@ class FreeFallSimulation: public Simulation
          *
          * \param par the particle object.
          */
-        FreeFallSimulation(Particle par):
+        FreeFallSimulation(Particle par, float rhofGrad, float rhob):
             Simulation(),
+            rhofGrad(rhofGrad),
+            rhob(rhob),
             par(par) {}
             
         /*!

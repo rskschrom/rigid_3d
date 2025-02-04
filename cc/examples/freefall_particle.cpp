@@ -16,7 +16,10 @@ int main(void){
     std::vector<float> omega, omegaB;
     std::vector<float> torque;
     
-    float pmass = 920.*pow(0.1*1.e-3, 3.);
+    float g = -9.81;
+    float rhob = 920.;
+    float rhofGrad = 0.1;
+    float pmass = rhob*pow(0.1*1.e-3, 3.);
     int nstep = 2500;
     float theta = 10.;
     float pi = 3.14159265;
@@ -43,7 +46,7 @@ int main(void){
     
     writeVector(par.relPoints, "r.txt");
     
-    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, -6.);
+    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, g, rhofGrad, rhob);
 
     //torque = {0.,0.,-0.000004};
     //ffsim.evolveMotion(torque, nstep=1);

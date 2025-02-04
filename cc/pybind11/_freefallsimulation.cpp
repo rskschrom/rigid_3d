@@ -7,11 +7,14 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(_freefallsimulation, m){
     py::class_<FreeFallSimulation>(m, "FreeFallSimulation")
-    .def(py::init<Particle>())
-    .def(py::init<Particle,int,float,float>())
+    .def(py::init<Particle,float,float>())
+    .def(py::init<Particle,int,float,float,float,float>())
     
     .def_readonly("posHistory", &FreeFallSimulation::posHistory)
     .def_readonly("orientHistory", &FreeFallSimulation::orientHistory)
+    .def_readonly("par", &FreeFallSimulation::par)
+        
+    .def("getSimStep", &FreeFallSimulation::getSimStep)
     
     .def("evolveMotionInertial", &FreeFallSimulation::evolveMotionInertial)
     .def("evolveMotionBuoyancy", &FreeFallSimulation::evolveMotionBuoyancy);

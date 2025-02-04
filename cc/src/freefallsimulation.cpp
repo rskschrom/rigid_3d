@@ -73,10 +73,10 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
   
     for (int i = 0; i < nstep; i++){
 
-        //solVector = rigidMotionRK4(omegaBV, orientV, torqueBV,
-        //                           matInerm, matIInerm, dt, g);
-        solVector = rigidMotionEB(omegaBV, orientV, torqueBV,
-                                  matInerm, matIInerm, dt, g);
+        solVector = rigidMotionRK4(omegaBV, orientV, torqueBV,
+                                   matInerm, matIInerm, dt, g, rhofGrad, rhob);
+        //solVector = rigidMotionEB(omegaBV, orientV, torqueBV,
+        //                          matInerm, matIInerm, dt, g, rhofGrad, rhob);
                                    
         for (int i = 0; i < 3; i++){
             omegaBody[i] = solVector[i];
@@ -121,7 +121,7 @@ void FreeFallSimulation::evolveMotionBuoyancy(int nstepUser)
     for (int i = 0; i < nstep; i++){
     
         // apply buoyancy torque
-        torqueBuoyancy = calcBuoyancyTorque(par.getMatInerm(), par.orient, -3.);
+        torqueBuoyancy = calcBuoyancyTorque(par.getMatInerm(), par.orient, g, rhofGrad, rhob);
         evolveMotion(torqueBuoyancy, 1);
 
     }

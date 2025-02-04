@@ -123,6 +123,24 @@ class Particle
         std::vector<float> inertiaMomentTensor();
         
         /*!
+         * Calculate the rotational potential energy of the particle based on buoyancy.
+         *
+         * \param g the gravitational acceleration
+         * \param rhofGrad the linear density gradient of the fluid
+         * \param rhob the density of the body
+         *
+         * \return the potential energy.
+         */
+        float rotationalPotentialEnergy(float g, float rhofGrad, float rhob);
+        
+        /*!
+         * Calculate the rotational kinetic energy of the particle.
+         *
+         * \return the kinetic energy.
+         */
+        float rotationalKineticEnergy();
+        
+        /*!
          * Transform relative points to absolute points.
          *
          * \return the absolute point positions.

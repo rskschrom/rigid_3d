@@ -48,4 +48,11 @@ class Particle():
         rel_points.shape = (int(rel_points.shape[0]/3),3)
         return rel_points
     
+    def rotational_potential_energy(self, g, rhof_grad, rhob):
+        rotPE = self._Particle.rotationalPotentialEnergy(g, rhof_grad, rhob)
+        return rotPE
+    
+    def rotational_kinetic_energy(self):
+        rotKE = self._Particle.rotationalKineticEnergy()
+        return rotKE
     #writeVector(par.relPoints, "r.txt");
