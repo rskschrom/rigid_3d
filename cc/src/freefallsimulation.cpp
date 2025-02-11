@@ -46,6 +46,7 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     std::vector<float> dq;
     std::vector<float> inerm;
     Eigen::Matrix3f matInerm, matIInerm;
+    Eigen::Vector3f dOmegaBV = Eigen::Vector3f::Zero();
     int nstep;
     float qNorm;
     
@@ -73,17 +74,23 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
   
     for (int i = 0; i < nstep; i++){
 
-        solVector = rigidMotionRK4(omegaBV, orientV, torqueBV,
-                                   matInerm, matIInerm, dt, g, rhofGrad, rhob);
+        solVector = rigidMotionPCDM(omegaBV, orientV, dOmegaBV,
+                                    matInerm, matIInerm, dt, g, rhofGrad, rhob);
+        //solVector = rigidMotionRK4(omegaBV, orientV, torqueBV,
+        //                           matInerm, matIInerm, dt, g, rhofGrad, rhob);
         //solVector = rigidMotionEB(omegaBV, orientV, torqueBV,
         //                          matInerm, matIInerm, dt, g, rhofGrad, rhob);
                                    
         for (int i = 0; i < 3; i++){
-            omegaBody[i] = solVector[i];
+            // apply damping to angular velocity
+            omegaBody[i] = (1.-dampFrac)*solVector[i];
+            omegaBV(i) = omegaBody[i];
+            dOmegaBV(i) = solVector[7+i];
         }
         for (int i = 0; i < 4; i++){
             orientWorld[i] = solVector[3+i];
-        }
+            orientV(i) = solVector[3+i];
+        }        
         
         par.setOrient(orientWorld);
         

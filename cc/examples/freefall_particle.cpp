@@ -46,7 +46,7 @@ int main(void){
     
     writeVector(par.relPoints, "r.txt");
     
-    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, g, rhofGrad, rhob);
+    FreeFallSimulation ffsim = FreeFallSimulation(par, nstep, 1.e-3, g, rhofGrad, rhob, 1.e-5);
 
     //torque = {0.,0.,-0.000004};
     //ffsim.evolveMotion(torque, nstep=1);

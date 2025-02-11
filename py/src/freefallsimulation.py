@@ -6,14 +6,16 @@ class FreeFallSimulation():
     '''
     FreeFallSimulation class
     '''
-    def __init__(self, par, nt, dt, g, rhof_grad, rhob):
+    def __init__(self, par, nt, dt, g, rhof_grad, rhob, damp_frac):
         self.par = par
         self.nt = nt
         self.dt = dt
         self.g = g
         self.rhof_grad = rhof_grad
         self.rhob = rhob
-        self._FreeFallSimulation = _FreeFallSimulation(self.par._Particle, nt, dt, g, rhof_grad, rhob)
+        self.damp_frac = damp_frac
+        self._FreeFallSimulation = _FreeFallSimulation(self.par._Particle, nt, dt, g,
+                                                       rhof_grad, rhob, damp_frac)
         
     def get_pos_history(self):
         '''

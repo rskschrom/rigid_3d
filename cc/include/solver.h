@@ -21,4 +21,8 @@ std::vector<float> rigidMotionEB(Eigen::Vector3f omegaV, Eigen::Vector4f orientV
                                  Eigen::Vector3f torqueV,
                                  Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
                                  float dt, float g, float rhofGrad, float rhob);
+std::vector<float> rigidMotionPCDM(Eigen::Vector3f omegaBVn12, Eigen::Vector4f orientVn12,
+                                   Eigen::Vector3f dOmegaBVn,
+                                   Eigen::Matrix3f matInerm, Eigen::Matrix3f matIInerm,
+                                   float dt, float g, float rhofGrad, float rhob);
 #endif

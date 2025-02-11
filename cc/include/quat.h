@@ -7,6 +7,7 @@
 #define QUAT_H
 
 std::vector<float> multiply(std::vector<float> q1, std::vector<float> q2);
+Eigen::Vector4f multiply(Eigen::Vector4f q1, Eigen::Vector4f q2);
 std::vector<float> multiplyVecQuat(std::vector<float> v, std::vector<float> q);
 Eigen::Vector4f multiplyVecQuat(Eigen::Vector3f v, Eigen::Vector4f q);
 std::vector<float> conj(std::vector<float> q);

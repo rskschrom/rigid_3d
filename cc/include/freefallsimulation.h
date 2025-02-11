@@ -17,6 +17,7 @@ class FreeFallSimulation: public Simulation
         /// object parameters
         float rhofGrad;
         float rhob;
+        float dampFrac;
         Particle par;
         
         /// vectors for the history of positions and orientations
@@ -32,11 +33,13 @@ class FreeFallSimulation: public Simulation
          * \param g the gravitational acceleration
          * \param rhofGrad the linear fluid density gradient
          * \param rhob the body density
+         * \param dampFrac the damping fraction on angular velocity
          */
-        FreeFallSimulation(Particle par, int nt, float dt, float g, float rhofGrad, float rhob):
+        FreeFallSimulation(Particle par, int nt, float dt, float g, float rhofGrad, float rhob, float dampFrac):
             Simulation(nt, dt, g),
             rhofGrad(rhofGrad),
             rhob(rhob),
+            dampFrac(dampFrac),
             par(par) {}
             
         /*!
@@ -44,10 +47,11 @@ class FreeFallSimulation: public Simulation
          *
          * \param par the particle object.
          */
-        FreeFallSimulation(Particle par, float rhofGrad, float rhob):
+        FreeFallSimulation(Particle par, float rhofGrad, float rhob, float dampFrac):
             Simulation(),
             rhofGrad(rhofGrad),
             rhob(rhob),
+            dampFrac(dampFrac),
             par(par) {}
             
         /*!
