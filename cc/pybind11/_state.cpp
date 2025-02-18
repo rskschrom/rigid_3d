@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/eigen.h>
 #include "state.h"
 
 namespace py = pybind11;
@@ -19,7 +20,9 @@ PYBIND11_MODULE(_state, m){
     .def("setComVel", &State::setComVel)
     .def("setOrient", &State::setOrient)
     .def("setOmega", &State::setOmega)
-    
+    .def("getMatInerm", &State::getMatInerm)
+    .def("getMatIInerm", &State::getMatIInerm)
+        
     .def("rotationalPotentialEnergy", &State::rotationalPotentialEnergy)
     .def("rotationalKineticEnergy", &State::rotationalKineticEnergy);
     //m.doc() = "";

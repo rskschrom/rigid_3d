@@ -1,16 +1,13 @@
-#from rigidpy.particle import Particle
-from rigidpy.pybind11_lib._particle import Particle
 from rigidpy.pybind11_lib._freefallsimulation import FreeFallSimulation
+from rigidpy.pybind11_lib._state import State
+import numpy as np
 
-# test ffsim
-par = Particle('data/crystal_points.txt', 920.*(0.1*1.e-3)**3.)
-par.setOmega([0.5,0.,0.2])
+# test ffsim creation
+def test_ffsim():
+    st = State(np.eye(3))
 
-ffsim = FreeFallSimulation(par, 2500, 1.e-3, -6.)
-print(dir(ffsim))
-ffsim.evolveMotionInertial(100)
+    ffsim = FreeFallSimulation(st, 10, 1.e-2, -9.81, 10., 920., 1.e-5)
+    ffsim.evolveMotionInertial(1)
 
-orient = ffsim.orientHistory
-print(orient)
-#print(dir(par))
-#print(par.get_rel_points())
+    orient = ffsim.orientHistory
+    assert orient[0]==1.

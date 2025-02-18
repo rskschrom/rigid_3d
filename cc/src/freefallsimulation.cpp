@@ -23,20 +23,20 @@ void FreeFallSimulation::evolveMotionInertial(int nstepUser)
     }
   
     for (int i = 0; i < nstep; i++){
-        dq = multiplyVecQuat(par.omega, par.orient);
+        dq = multiplyVecQuat(st.omega, st.orient);
 
         // update body position and velocity
         for (int i = 0; i < 4; i++){
-            par.orient[i] += dt*0.5*dq[i];
+            st.orient[i] += dt*0.5*dq[i];
         }
   
         for (int i = 0; i < 3; i++){
-            par.comPos[i] += dt*par.comVel[i];
+            st.comPos[i] += dt*st.comVel[i];
         }
         
         // save motion history
-        posHistory.insert(posHistory.end(), std::begin(par.comPos), std::end(par.comPos));
-        orientHistory.insert(orientHistory.end(), std::begin(par.orient), std::end(par.orient));
+        posHistory.insert(posHistory.end(), std::begin(st.comPos), std::end(st.comPos));
+        orientHistory.insert(orientHistory.end(), std::begin(st.orient), std::end(st.orient));
         incrSimStep();
     }
 }
@@ -51,18 +51,18 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
     float qNorm;
     
     // get inertia moment tensor and inverse
-    matInerm = par.getMatInerm();
-    matIInerm = par.getMatIInerm();
+    matInerm = st.getMatInerm();
+    matIInerm = st.getMatIInerm();
 
     // rotate torque and angular to body reference frame
     std::vector<float> omegaBody, torqueBody;
     std::vector<float> orientWorld(4);
     std::vector<float> solVector(7);
     
-    omegaBody = vecRotate(par.omega, conj(par.orient));
-    torqueBody = vecRotate(torque, conj(par.orient));
+    omegaBody = vecRotate(st.omega, conj(st.orient));
+    torqueBody = vecRotate(torque, conj(st.orient));
     Eigen::Vector3f omegaBV(omegaBody.data()), torqueBV(torqueBody.data());
-    Eigen::Vector4f orientV(par.orient.data());
+    Eigen::Vector4f orientV(st.orient.data());
         
     // use simulation nsteps if no value is provided
     if (nstepUser==0){
@@ -92,7 +92,7 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
             orientV(i) = solVector[3+i];
         }        
         
-        par.setOrient(orientWorld);
+        st.setOrient(orientWorld);
         
         // test quaternion norm
         qNorm = orientWorld[0]*orientWorld[0]+orientWorld[1]*orientWorld[1]+
@@ -100,12 +100,12 @@ void FreeFallSimulation::evolveMotion(std::vector<float> torque, int nstepUser)
         //std::cout << qNorm << "\tqNorm" << std::endl;
 
         // rotate new angular velocity to world reference frame
-        par.setOmega(vecRotate(omegaBody, par.orient));
+        st.setOmega(vecRotate(omegaBody, st.orient));
         //par.setOmega(omegaBody);
         
         // save motion history
-        posHistory.insert(posHistory.end(), std::begin(par.comPos), std::end(par.comPos));
-        orientHistory.insert(orientHistory.end(), std::begin(par.orient), std::end(par.orient));
+        posHistory.insert(posHistory.end(), std::begin(st.comPos), std::end(st.comPos));
+        orientHistory.insert(orientHistory.end(), std::begin(st.orient), std::end(st.orient));
         incrSimStep();
     }
 }
@@ -128,7 +128,7 @@ void FreeFallSimulation::evolveMotionBuoyancy(int nstepUser)
     for (int i = 0; i < nstep; i++){
     
         // apply buoyancy torque
-        torqueBuoyancy = calcBuoyancyTorque(par.getMatInerm(), par.orient, g, rhofGrad, rhob);
+        torqueBuoyancy = calcBuoyancyTorque(st.getMatInerm(), st.orient, g, rhofGrad, rhob);
         evolveMotion(torqueBuoyancy, 1);
 
     }

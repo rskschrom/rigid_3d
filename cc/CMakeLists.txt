@@ -38,7 +38,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # project dirs
 add_subdirectory(src)
-add_subdirectory(examples)
+#add_subdirectory(examples)
 
 if(PYTHON)
     add_subdirectory(pybind11)

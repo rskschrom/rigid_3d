@@ -4,7 +4,7 @@
 #include <math.h>
 #include <vector>
 #include "simulation.h"
-#include "particle.h"
+#include "state.h"
 
 #ifndef FREEFALLSIMULATION_H
 #define FREEFALLSIMULATION_H
@@ -18,7 +18,7 @@ class FreeFallSimulation: public Simulation
         float rhofGrad;
         float rhob;
         float dampFrac;
-        Particle par;
+        State st;
         
         /// vectors for the history of positions and orientations
         std::vector<float> posHistory;
@@ -27,7 +27,7 @@ class FreeFallSimulation: public Simulation
         /*!
          * Set values for constructor.
          *
-         * \param par the particle object.
+         * \param st the State object.
          * \param nt the number of timesteps.
          * \param dt the timestep (seconds).
          * \param g the gravitational acceleration
@@ -35,24 +35,24 @@ class FreeFallSimulation: public Simulation
          * \param rhob the body density
          * \param dampFrac the damping fraction on angular velocity
          */
-        FreeFallSimulation(Particle par, int nt, float dt, float g, float rhofGrad, float rhob, float dampFrac):
+        FreeFallSimulation(State st, int nt, float dt, float g, float rhofGrad, float rhob, float dampFrac):
             Simulation(nt, dt, g),
             rhofGrad(rhofGrad),
             rhob(rhob),
             dampFrac(dampFrac),
-            par(par) {}
+            st(st) {}
             
         /*!
          * Set values for constructor with defaults for simulation
          *
-         * \param par the particle object.
+         * \param st the State object.
          */
-        FreeFallSimulation(Particle par, float rhofGrad, float rhob, float dampFrac):
+        FreeFallSimulation(State st, float rhofGrad, float rhob, float dampFrac):
             Simulation(),
             rhofGrad(rhofGrad),
             rhob(rhob),
             dampFrac(dampFrac),
-            par(par) {}
+            st(st) {}
             
         /*!
          * Integrate simulation forward with applied torque.
