@@ -86,3 +86,45 @@ Eigen::Matrix3f quatToMatrix(Eigen::Vector4f q)
     
     return rmat;
 }
+
+// transform relative points to absolute points given orientation and com
+std::vector<float> transformPoints(std::vector<float> relPoints,
+                                   std::vector<float> orient, std::vector<float> comPos)
+{
+    int npar = relPoints.size()/3;
+    float a, b, c;
+    std::vector<float> prot(3);
+    std::vector<float> absPoints(npar*3);
+
+    // get rotation coefficients
+    a = orient[0]*orient[0]-
+        orient[1]*orient[1]-
+        orient[2]*orient[2]-
+        orient[3]*orient[3];
+      
+    c = -2.*orient[0];
+  
+    // loop over points
+    for (int i = 0; i < npar; i++){
+      b = 2.*(relPoints[3*i]*orient[1]+
+              relPoints[3*i+1]*orient[2]+
+              relPoints[3*i+2]*orient[3]);
+            
+      // prot = a*p+b*v+c*pxv
+      prot[0] = a*relPoints[3*i]+b*orient[1]+
+                c*(relPoints[3*i+1]*orient[3]-relPoints[3*i+2]*orient[2]);
+              
+      prot[1] = a*relPoints[3*i+1]+b*orient[2]+
+                c*(relPoints[3*i+2]*orient[1]-relPoints[3*i]*orient[3]);
+              
+      prot[2] = a*relPoints[3*i+2]+b*orient[3]+
+                c*(relPoints[3*i]*orient[2]-relPoints[3*i+1]*orient[1]);
+    
+      absPoints[3*i] = prot[0]+comPos[0];
+      absPoints[3*i+1] = prot[1]+comPos[1];
+      absPoints[3*i+2] = prot[2]+comPos[2];
+    }
+  
+    return absPoints;
+  
+}
