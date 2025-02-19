@@ -14,7 +14,6 @@ std::vector<float> readPoints(std::string fname)
     int npar;
     std::vector<float> r;
     float xv, yv, zv;
-    float mnx, mny, mnz;
     
     // read position data from a file (indices; no header)
     std::ifstream ifile;
@@ -29,11 +28,6 @@ std::vector<float> readPoints(std::string fname)
     ifile.ignore(max_size, '\n');
     ifile.ignore(max_size, '\n');
   
-    // mean position
-    mnx = 0.;
-    mny = 0.;
-    mnz = 0.;
-  
     while (!ifile.eof()){
         ifile >> xv;
         ifile >> yv;
@@ -41,25 +35,10 @@ std::vector<float> readPoints(std::string fname)
         r.push_back(xv);
         r.push_back(yv);
         r.push_back(zv);
-    
-        mnx += xv;
-        mny += yv;
-        mnz += zv;
-
     }
   
     ifile.close();
-    npar = r.size()/3;
-    mnx = mnx/npar;
-    mny = mny/npar;
-    mnz = mnz/npar;
-  
-    // center particle com at origin
-    for (int i = 0; i < npar; i++){   
-        r[3*i] = r[3*i]-mnx;
-        r[3*i+1] = r[3*i+1]-mny;
-        r[3*i+2] = r[3*i+2]-mnz;
-    }
+
     return r;
 }
 
