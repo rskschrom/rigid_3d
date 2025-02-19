@@ -87,6 +87,7 @@ Eigen::Matrix3f quatToMatrix(Eigen::Vector4f q)
     return rmat;
 }
 
+/*
 // transform relative points to absolute points given orientation and com
 std::vector<float> transformPoints(std::vector<float> relPoints,
                                    std::vector<float> orient, std::vector<float> comPos)
@@ -126,5 +127,114 @@ std::vector<float> transformPoints(std::vector<float> relPoints,
     }
   
     return absPoints;
+  
+}
+*/
+// get the sorted eigenvectors of a tensor
+Eigen::Matrix3f sortedEigVecs(Eigen::Matrix3f tensor)
+{
+    
+    // get principal axes of inertia momentum tensor
+    Eigen::EigenSolver<Eigen::Matrix3f> es(tensor);
+    Eigen::Matrix3f eigVecs = es.eigenvectors().real();
+    Eigen::Matrix3f permute = Eigen::Matrix3f::Zero();
+    
+    // sort eigenvectors by decreasing eigenvalue
+    float a = es.eigenvalues().real()[0];
+    float b = es.eigenvalues().real()[1];
+    float c = es.eigenvalues().real()[2];
+    float tmpVal;
+    int tmpInd;
+    std::vector<int> indSort = {0, 1, 2};
+    std::vector<float> eigVals = {a, b, c};
+        
+    if (eigVals[0]>eigVals[1]){
+        tmpVal = eigVals[0];
+        tmpInd = indSort[0];
+        eigVals[0] = eigVals[1];
+        eigVals[1] = tmpVal;
+        indSort[0] = indSort[1];
+        indSort[1] = tmpInd;
+    }
+    if (eigVals[0]>eigVals[2]){
+        tmpVal = eigVals[0];
+        tmpInd = indSort[0];
+        eigVals[0] = eigVals[2];
+        eigVals[2] = tmpVal;
+        indSort[0] = indSort[2];
+        indSort[2] = tmpInd;
+    }
+    if (eigVals[1]>eigVals[2]){
+        tmpVal = eigVals[1];
+        tmpInd = indSort[1];
+        eigVals[1] = eigVals[2];
+        eigVals[2] = tmpVal;
+        indSort[1] = indSort[2];
+        indSort[2] = tmpInd;
+    }
+        
+    // permute matrix
+    for (int i = 0; i<3; i++){
+        permute(i,indSort[i]) = 1.;
+    }
+    
+    eigVecs = eigVecs * permute;
+    
+    return eigVecs;
+}
+
+// subtract center of mass from points
+std::vector<float> centerPoints(std::vector<float> points)
+{
+    int npar = points.size()/3;
+    std::vector<float> relPoints(npar*3);
+    float comX, comY, comZ;
+    
+    // calculate center of mass
+    comX = 0.;
+    comY = 0.;
+    comZ = 0.;
+    
+    for (int i = 0; i < npar; i++){
+        comX = comX+points[3*i];
+        comY = comY+points[3*i+1];
+        comZ = comZ+points[3*i+2];
+    }
+    
+    comX = comX/float(npar);
+    comY = comY/float(npar);
+    comZ = comZ/float(npar);
+  
+    // rotate relative points
+    for (int i = 0; i < npar; i++){
+        relPoints[3*i] = points[3*i]-comX;
+        relPoints[3*i+1] = points[3*i+1]-comY;
+        relPoints[3*i+2] = points[3*i+2]-comZ;
+    }
+  
+    return relPoints;
+  
+}
+
+// rotate points centered at origin to the body-relative reference frame along the inertia moment tensor principal axes
+std::vector<float> pointsToBodyFrame(std::vector<float> relPoints, Eigen::Matrix3f inermPA)
+{
+    int npar = relPoints.size()/3;
+    std::vector<float> rotPoints(npar*3);
+  
+    // rotate relative points
+    for (int i = 0; i < npar; i++){
+        rotPoints[3*i] = inermPA(0,0)*relPoints[3*i]+
+                         inermPA(0,1)*relPoints[3*i+1]+
+                         inermPA(0,2)*relPoints[3*i+2];
+        rotPoints[3*i+1] = inermPA(1,0)*relPoints[3*i]+
+                           inermPA(1,1)*relPoints[3*i+1]+
+                           inermPA(1,2)*relPoints[3*i+2];
+        rotPoints[3*i+2] = inermPA(2,0)*relPoints[3*i]+
+                           inermPA(2,1)*relPoints[3*i+1]+
+                           inermPA(2,2)*relPoints[3*i+2];
+    }
+  
+    return rotPoints;
   
 }

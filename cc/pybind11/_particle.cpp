@@ -10,9 +10,12 @@ PYBIND11_MODULE(_particle, m){
     .def(py::init<std::vector<float>,float>())
     .def(py::init<std::string,float>())
     
+    .def_readonly("points", &Particle::points)
     .def_readonly("relPoints", &Particle::relPoints)
         
-    .def("inertiaMomentTensor", &Particle::inertiaMomentTensor);
+    .def("inertiaMomentTensor", &Particle::inertiaMomentTensor)
+    .def("getMatInerm", &Particle::getMatInerm)
+    .def("setMatInerm", &Particle::setMatInerm);
     //m.doc() = "";
 
 }

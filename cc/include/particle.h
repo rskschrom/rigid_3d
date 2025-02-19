@@ -11,35 +11,46 @@
 
 /// Class for particle object
 class Particle
-{   
+{
+
+    private:
+        Eigen::Matrix3f matInerm;
 
     public:
     
         /// initial properties
-        std::vector<float> relPoints;
+        std::vector<float> points;
         float pointMass;
+        
+        std::vector<float> relPoints;
 
         /*!
          * Default constructor.
          *
-         * \param relPoints the relative point mass positions.
+         * \param points the point mass positions.
          * \param pointMass the mass of each point.
          */    
 
-        Particle(std::vector<float> relPoints, float pointMass):
-            relPoints(relPoints),
-            pointMass(pointMass) {}
+        Particle(std::vector<float> points, float pointMass):
+            points(points),
+            pointMass(pointMass) { initialize(); }
          
         /*!
-         * Constructor with relative points read in from file
+         * Constructor with points read in from file
          *
-         * \param relPointsFile a text file containing the relative
+         * \param pointsFile a text file containing the relative
          * point positions.
          * \param pointMass the mass of each point.
          */
-         Particle(std::string relPointFile, float pointMass):
-            relPoints(readPoints(relPointFile)),
-            pointMass(pointMass) {}
+         Particle(std::string pointsFile, float pointMass):
+            points(readPoints(pointsFile)),
+            pointMass(pointMass) { initialize(); }
+            
+        /*!
+         * Initializing by reorienting the particle to the principal axes of its inertia momentum tensor.
+         *
+         */
+         void initialize();
 
         /*!
          * Calculate the total particle mass.
@@ -54,6 +65,10 @@ class Particle
          * \return the particle inertia momentum tensor.
          */
         Eigen::Matrix3f inertiaMomentTensor();
+        
+        void setMatInerm(Eigen::Matrix3f imat){ matInerm = imat; }
+        
+        Eigen::Matrix3f getMatInerm() { return matInerm;}
 
 };
 
