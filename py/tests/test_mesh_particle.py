@@ -16,11 +16,28 @@ def create_mesh_particle():
 
     return mp, mesh
 
-# test area
-def test_area():
+# test area and normal vectors
+def test_area_norms():
     mp, mesh = create_mesh_particle()
-    mp.calculateFaceAreas()
+    mp.calculateFaceAreasNorms()
     areas = mp.faceAreas
+    norms = mp.faceNorms
+        
+    # compute normals with pyvista
+    mesh.compute_normals(inplace=True)
+    norm_pv = mesh['Normals']
     
+    # test dot product
+    dotp = np.einsum('ki,ki->k', norms, norm_pv)
+    
+    assert np.abs(np.sum(dotp)-float(len(dotp)))<1.e-16
     assert np.abs(np.sum(areas)-mesh.area)<1.e-16
-    
+
+# test mass
+def test_mass():
+    mp, mesh = create_mesh_particle()
+    mp.calculateFaceAreasNorms()
+    mass = mp.totalMass()
+
+    assert np.abs(mass-mesh.volume*920.)/(mesh.volume*920.)<1.e-3
+        

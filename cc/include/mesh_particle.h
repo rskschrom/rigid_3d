@@ -25,6 +25,7 @@ class MeshParticle
         
         // computed properties of the mesh
         Eigen::VectorXf faceAreas;
+        Eigen::MatrixX3f faceNorms;
 
         /*!
          * Default constructor.
@@ -46,10 +47,10 @@ class MeshParticle
          //void initialize();
          
          /*!
-         * Calculate the area of each face.
+         * Calculate the area and normal vector of each face.
          *
          */
-         void calculateFaceAreas();
+         void calculateFaceAreasNorms();
 
         /*!
          * Calculate the total particle mass.

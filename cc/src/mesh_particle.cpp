@@ -3,11 +3,32 @@
 
 float MeshParticle::totalMass()
 {
-    std::cout << vertices.rows() << " " << vertices.cols() << std::endl;
-    return float(vertices.rows());
+    int nface = faces.rows();
+    int iv1, iv2, iv3;
+    Eigen::Vector3f centroid, v1, v2, v3, v21, v31;
+    float mass = 0.;
+    
+    for(int i=0; i < nface; i++)
+    {
+        // get face vertices
+        iv1 = faces(i,0);
+        iv2 = faces(i,1);
+        iv3 = faces(i,2);
+        
+        v1 = vertices.row(iv1);
+        v2 = vertices.row(iv2);
+        v3 = vertices.row(iv3);
+        
+        // calculate centroid
+        centroid = (v1+v2+v3)/3.;
+        mass = mass+faceAreas(i)/3.*centroid.dot(faceNorms.row(i));
+        
+    }
+    
+    return mass*density;
 }
 
-void MeshParticle::calculateFaceAreas()
+void MeshParticle::calculateFaceAreasNorms()
 {
     int nface = faces.rows();
     int iv1, iv2, iv3;
@@ -16,6 +37,7 @@ void MeshParticle::calculateFaceAreas()
     
     // initialize face area vector
     faceAreas.resize(nface);
+    faceNorms.resize(nface,3);
     
     for(int i=0; i < nface; i++)
     {
@@ -34,11 +56,14 @@ void MeshParticle::calculateFaceAreas()
         vcross = v21.cross(v31);
         faceAreas(i) = 0.5*sqrt(vcross(0)*vcross(0)+vcross(1)*vcross(1)+vcross(2)*vcross(2));
         
-        std::cout << v1 << " " << faceAreas(i) << std::endl;
+        // get normal vector
+        //v21mag = sqrt(v21(0)*v21(0)+v21(0)*v21(0));
+        faceNorms(i,0) = vcross(0)/(2.*faceAreas(i));
+        faceNorms(i,1) = vcross(1)/(2.*faceAreas(i));
+        faceNorms(i,2) = vcross(2)/(2.*faceAreas(i));
         
     }
     
-    std::cout << faces.rows() << " " << faces.cols() << std::endl;
     return;
 }
 

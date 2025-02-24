@@ -12,9 +12,10 @@ PYBIND11_MODULE(_mesh_particle, m){
     .def_readonly("vertices", &MeshParticle::vertices)
     .def_readonly("faces", &MeshParticle::faces)
     .def_readonly("faceAreas", &MeshParticle::faceAreas)    
+    .def_readonly("faceNorms", &MeshParticle::faceNorms)
         
     .def("totalMass", &MeshParticle::totalMass)
-    .def("calculateFaceAreas", &MeshParticle::calculateFaceAreas)
+    .def("calculateFaceAreasNorms", &MeshParticle::calculateFaceAreasNorms)
     //.def("inertiaMomentTensor", &MeshParticle::inertiaMomentTensor)
     .def("getMatInerm", &MeshParticle::getMatInerm)
     .def("setMatInerm", &MeshParticle::setMatInerm);
