@@ -41,3 +41,16 @@ def test_mass():
 
     assert np.abs(mass-mesh.volume*920.)/(mesh.volume*920.)<1.e-3
         
+# test triangle integral
+def test_triangle_integral():
+    mp, mesh = create_mesh_particle()
+    
+    # test with right triangle
+    x1 = 0.5
+    y1 = 0.3
+    area = 0.5*x1*y1
+    alp = np.array([0.,x1,0.])
+    bet = np.array([0.,0.,y1])
+    integral = mp.triAlp2BetIntegral(alp, bet, area)
+    
+    assert np.abs(x1**3.*y1**2./60.-integral)<1.e-7

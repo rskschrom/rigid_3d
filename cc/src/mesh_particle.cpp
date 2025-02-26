@@ -67,6 +67,33 @@ void MeshParticle::calculateFaceAreasNorms()
     return;
 }
 
+float MeshParticle::triAlp2BetIntegral(Eigen::Vector3f alp, Eigen::Vector3f bet, float area)
+{
+    float integral, p300, p030, p003,
+        p120, p210, p102, p201, p012, p021, p111;
+    
+    // calculate polynomial values
+    p300 = alp(0)*alp(0)*bet(0);
+    p030 = alp(1)*alp(1)*bet(1);
+    p003 = alp(2)*alp(2)*bet(2);
+    
+    p120 = alp(1)*alp(1)*bet(0)+2.*alp(0)*alp(1)*bet(1);
+    p210 = alp(0)*alp(0)*bet(1)+2.*alp(1)*alp(0)*bet(0);
+    p102 = alp(2)*alp(2)*bet(0)+2.*alp(0)*alp(2)*bet(2);
+    p201 = alp(0)*alp(0)*bet(2)+2.*alp(2)*alp(0)*bet(0);
+    p012 = alp(2)*alp(2)*bet(1)+2.*alp(1)*alp(2)*bet(2);
+    p021 = alp(1)*alp(1)*bet(2)+2.*alp(2)*alp(1)*bet(1);
+    
+    p111 = alp(1)*alp(2)*bet(0)+alp(0)*alp(2)*bet(1)+alp(0)*alp(1)*bet(2);
+    
+    // sum to get integral over triangle
+    integral = 2.*area*(p300*m300+p030*m030+p003*m003+
+                        p120*m120+p210*m210+
+                        p102*m102+p201*m201+
+                        p012*m012+p021*m021+p111*m111);
+    return integral;
+}
+
 /*
 void MeshParticle::initialize()
 {
