@@ -10,19 +10,10 @@ void Particle::initialize()
     relPoints = centerPoints(points);
     matInerm = inertiaMomentTensor();
     
-    std::cout << "inertia moment tensor" << std::endl;
-    std::cout << matInerm << std::endl;
-    
     // rotate and inertia momentum tensor particle points to principal axes reference frame
     eigVecs = sortedEigVecs(matInerm);
     
-    std::cout << "eigenvectors" << std::endl;
-    std::cout << eigVecs << std::endl;
-    
     matInermPA = eigVecs.transpose() * matInerm * eigVecs;
-    
-    std::cout << "rotated inertia moment tensor" << std::endl;
-    std::cout << matInermPA << std::endl;
     
     relPoints = pointsToBodyFrame(relPoints, eigVecs);
     setMatInerm(matInermPA);
