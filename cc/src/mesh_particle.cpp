@@ -84,7 +84,7 @@ float MeshParticle::triAlp2BetIntegral(Eigen::Vector3f alp, Eigen::Vector3f bet,
     p012 = alp(2)*alp(2)*bet(1)+2.*alp(1)*alp(2)*bet(2);
     p021 = alp(1)*alp(1)*bet(2)+2.*alp(2)*alp(1)*bet(1);
     
-    p111 = alp(1)*alp(2)*bet(0)+alp(0)*alp(2)*bet(1)+alp(0)*alp(1)*bet(2);
+    p111 = 2*(alp(1)*alp(2)*bet(0)+alp(0)*alp(2)*bet(1)+alp(0)*alp(1)*bet(2));
     
     // sum to get integral over triangle
     integral = 2.*area*(p300*m300+p030*m030+p003*m003+
@@ -94,42 +94,79 @@ float MeshParticle::triAlp2BetIntegral(Eigen::Vector3f alp, Eigen::Vector3f bet,
     return integral;
 }
 
+      
+Eigen::Matrix3f MeshParticle::inertiaMomentTensor()
+{
+
+    Eigen::Matrix3f inerm = Eigen::Matrix3f::Zero();
+    int nface = faces.rows();
+    int iv1, iv2, iv3;
+    Eigen::Vector3f v1, v2, v3, v21, v31, vcross;
+    Eigen::Vector3f x, y, z;
+    float txx, tyy, tzz, txy, txz, tyz;
+    
+    // loop over faces
+    for(int i=0; i < nface; i++)
+    {
+        // get face vertices
+        iv1 = faces(i,0);
+        iv2 = faces(i,1);
+        iv3 = faces(i,2);
+        
+        v1 = vertices.row(iv1);
+        v2 = vertices.row(iv2);
+        v3 = vertices.row(iv3);
+        
+        // get x,y,z arrays
+        x(0) = v1(0);
+        x(1) = v2(0);
+        x(2) = v3(0);
+        
+        y(0) = v1(1);
+        y(1) = v2(1);
+        y(2) = v3(1);
+        
+        z(0) = v1(2);
+        z(1) = v2(2);
+        z(2) = v3(2);
+                
+        // calculate triangle integrals
+        txx = triAlp2BetIntegral(x, x, faceAreas(i));
+        tyy = triAlp2BetIntegral(y, y, faceAreas(i));
+        tzz = triAlp2BetIntegral(z, z, faceAreas(i));
+        txy = triAlp2BetIntegral(x, y, faceAreas(i));
+        txz = triAlp2BetIntegral(x, z, faceAreas(i));
+        tyz = triAlp2BetIntegral(y, z, faceAreas(i));
+                
+        // add to inertia moment tensors
+        inerm(0,0) = inerm(0,0)+tyy*faceNorms(i,1)+tzz*faceNorms(i,2);
+        inerm(1,1) = inerm(1,1)+txx*faceNorms(i,0)+tzz*faceNorms(i,2);
+        inerm(2,2) = inerm(2,2)+txx*faceNorms(i,0)+tyy*faceNorms(i,1);
+        
+        inerm(0,1) = inerm(0,1)+txy*faceNorms(i,0);
+        inerm(0,2) = inerm(0,2)+txz*faceNorms(i,0);
+        inerm(1,2) = inerm(1,2)+tyz*faceNorms(i,1);
+        
+    }
+    
+    // scale tensor elements and get symmetric elements
+    inerm(0,0) = density/3.*inerm(0,0);
+    inerm(1,1) = density/3.*inerm(1,1);
+    inerm(2,2) = density/3.*inerm(2,2);
+    
+    inerm(0,1) = density/2.*inerm(0,1);
+    inerm(0,2) = density/2.*inerm(0,2);
+    inerm(1,2) = density/2.*inerm(1,2);
+        
+    inerm(1,0) = inerm(0,1);
+    inerm(2,0) = inerm(0,2);
+    inerm(2,1) = inerm(1,2);
+    
+    return inerm;
+}
 /*
 void MeshParticle::initialize()
 {
     return;
-}
-        
-Eigen::Matrix3f Particle::inertiaMomentTensor()
-{
-
-    Eigen::Matrix3f inerm = Eigen::Matrix3f::Zero();
-    int npar = relPoints.size()/3;
-    
-    // loop over tensor axes
-    for (int i = 0; i < 3; i++){
-        for (int j = 0; j < 3; j++){
-      
-            // tensor off diagonal
-            if (i!=j){
-                for (int k = 0; k < npar; k++){
-                    inerm(i,j) += -relPoints[3*k+i]*relPoints[3*k+j];
-                }
-            }
-      
-            // tensor diagonal
-            else{
-                for (int k = 0; k < npar; k++){
-                    inerm(i,j) += relPoints[3*k]*relPoints[3*k]+
-                                  relPoints[3*k+1]*relPoints[3*k+1]+
-                                  relPoints[3*k+2]*relPoints[3*k+2]-
-                                  relPoints[3*k+i]*relPoints[3*k+i];
-                }
-            }
-            
-            inerm(i,j) = pointMass*inerm(i,j);
-        }
-    }
-    return inerm;
 }
 */

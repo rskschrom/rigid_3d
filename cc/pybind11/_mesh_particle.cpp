@@ -16,6 +16,7 @@ PYBIND11_MODULE(_mesh_particle, m){
         
     .def("totalMass", &MeshParticle::totalMass)
     .def("triAlp2BetIntegral", &MeshParticle::triAlp2BetIntegral)
+    .def("inertiaMomentTensor", &MeshParticle::inertiaMomentTensor)
     .def("calculateFaceAreasNorms", &MeshParticle::calculateFaceAreasNorms)
     //.def("inertiaMomentTensor", &MeshParticle::inertiaMomentTensor)
     .def("getMatInerm", &MeshParticle::getMatInerm)

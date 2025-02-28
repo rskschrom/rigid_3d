@@ -6,7 +6,6 @@ import pyvista as pv
 def create_mesh_particle():
     # read mesh file
     mesh = pv.read('data/crystal_remesh.stl')
-    print(mesh)
     vertices = mesh.points
     faces = mesh.regular_faces
     density = 920.
@@ -52,5 +51,65 @@ def test_triangle_integral():
     alp = np.array([0.,x1,0.])
     bet = np.array([0.,0.,y1])
     integral = mp.triAlp2BetIntegral(alp, bet, area)
-    
     assert np.abs(x1**3.*y1**2./60.-integral)<1.e-7
+    
+# test inertia moment tensor
+def test_inertia():
+    #mp, mesh = create_mesh_particle()
+    
+    # create cuboid
+    dx = 0.25
+    dy = 0.06
+    dz = 0.4
+    
+    mesh = pv.Cube(x_length=dx, y_length=dy, z_length=dz)
+    mesh = mesh.triangulate()
+    
+    vertices = mesh.points
+    faces = mesh.regular_faces
+    density = 920.
+        
+    # create mesh particle object
+    mp = MeshParticle(vertices, faces, density)
+    mp.calculateFaceAreasNorms()
+    mass = mp.totalMass()
+    
+    # evaluate diagonal tensor compared to known value
+    itens = mp.inertiaMomentTensor()
+    
+    itens_true = np.array([mass/12.*(dy**2.+dz**2.),
+                           mass/12.*(dx**2.+dz**2.),
+                           mass/12.*(dx**2.+dy**2.)])
+    print(itens_true)
+    err = np.sqrt((itens[0,0]-itens_true[0])**2.+
+                  (itens[1,1]-itens_true[1])**2.+
+                  (itens[2,2]-itens_true[2])**2.)
+    assert err<1.e-8
+
+# test integral over individual mesh faces
+def test_face_integral():
+    # create cuboid
+    dx = 0.25
+    dy = 0.06
+    dz = 0.4
+    
+    mesh = pv.Cube(x_length=dx, y_length=dy, z_length=dz)
+    mesh = mesh.triangulate()
+    
+    vertices = mesh.points
+    faces = mesh.regular_faces
+    nface = faces.shape[0]
+    density = 0.92
+        
+    # create mesh particle object
+    mp = MeshParticle(vertices, faces, density)
+    mp.calculateFaceAreasNorms()
+
+    # pick a face integral with constant x
+    fi = 2
+    verts = vertices[faces[fi,:],:]
+    area = mp.faceAreas[fi]
+    
+    x = verts[:,0]
+    ixx = mp.triAlp2BetIntegral(x, x, area)
+    assert (ixx-area*x[0]**3.)/(area*x[0]**3.)*100.<1.e-3

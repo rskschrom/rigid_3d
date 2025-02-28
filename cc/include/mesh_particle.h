@@ -76,7 +76,7 @@ class MeshParticle
          *
          * \return the particle inertia momentum tensor.
          */
-        //Eigen::Matrix3f inertiaMomentTensor();
+        Eigen::Matrix3f inertiaMomentTensor();
         
         float triAlp2BetIntegral(Eigen::Vector3f alpPoints, Eigen::Vector3f betPoints, float area);
         
