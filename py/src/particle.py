@@ -41,6 +41,9 @@ class Particle():
         faces = mesh.regular_faces
         
         return cls(vertices, faces, rho)
+    
+    def get_mat_inerm(self):
+        return self._MeshParticle.getMatInerm()
 
 
         

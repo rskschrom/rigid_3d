@@ -50,13 +50,13 @@ class MeshParticle
         MeshParticle(Eigen::MatrixX3f vertices, Eigen::MatrixX3i faces, float density):
                      vertices(vertices),
                      faces(faces),
-                     density(density) {}
+                     density(density) { initialize(); }
 
         /*!
          * Initializing by reorienting the particle to the principal axes of its inertia momentum tensor.
          *
          */
-         //void initialize();
+         void initialize();
          
          /*!
          * Calculate the area and normal vector of each face.
@@ -83,6 +83,22 @@ class MeshParticle
         void setMatInerm(Eigen::Matrix3f imat){ matInerm = imat; }
         
         Eigen::Matrix3f getMatInerm() { return matInerm;}
+                
+        /*!
+         * Calculate the particle center of mass.
+         *
+         * \return the particle center of mass.
+         */
+        std::vector<float> centerOfMass();
+        
+        /*!
+         * Translate the particle.
+         *
+         * \param tr the translation vector.
+         */
+        void translate(std::vector<float> tr);
+        
+        
 
 };
 

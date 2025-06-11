@@ -164,9 +164,101 @@ Eigen::Matrix3f MeshParticle::inertiaMomentTensor()
     
     return inerm;
 }
-/*
-void MeshParticle::initialize()
+
+std::vector<float> MeshParticle::centerOfMass()
 {
+
+    std::vector<float> com_pos = {0.,0.,0.};
+    float int_x, int_y, int_z;
+    int nface = faces.rows();
+    float mass = totalMass();
+    
+    int iv1, iv2, iv3;
+    Eigen::Vector3f v1, v2, v3;
+    Eigen::Vector3f x, y, z;
+    
+    // loop over faces
+    for(int i=0; i < nface; i++)
+    {
+        // get face vertices
+        iv1 = faces(i,0);
+        iv2 = faces(i,1);
+        iv3 = faces(i,2);
+        
+        v1 = vertices.row(iv1);
+        v2 = vertices.row(iv2);
+        v3 = vertices.row(iv3);
+        
+        // get x,y,z arrays
+        x(0) = v1(0);
+        x(1) = v2(0);
+        x(2) = v3(0);
+        
+        y(0) = v1(1);
+        y(1) = v2(1);
+        y(2) = v3(1);
+        
+        z(0) = v1(2);
+        z(1) = v2(2);
+        z(2) = v3(2);
+                
+        // calculate triangle integrals
+        int_x = faceAreas(i)*faceNorms(i,0)*(x(0)*x(0)+x(1)*x(1)+x(2)*x(2)+
+                                             x(0)*x(1)+x(0)*x(2)+x(1)*x(2));
+        int_y = faceAreas(i)*faceNorms(i,1)*(y(0)*y(0)+y(1)*y(1)+y(2)*y(2)+
+                                             y(0)*y(1)+y(0)*y(2)+y(1)*y(2));
+        int_z = faceAreas(i)*faceNorms(i,2)*(z(0)*z(0)+z(1)*z(1)+z(2)*z(2)+
+                                             z(0)*z(1)+z(0)*z(2)+z(1)*z(2));
+                
+        // add to center of mass
+        com_pos[0] = com_pos[0]+int_x;
+        com_pos[1] = com_pos[1]+int_y;
+        com_pos[2] = com_pos[2]+int_z;
+    }
+    
+    // scale center of masses correctly
+    com_pos[0] = com_pos[0]*density/(12.*mass);
+    com_pos[1] = com_pos[1]*density/(12.*mass);
+    com_pos[2] = com_pos[2]*density/(12.*mass);
+    
+    return com_pos;
+}
+
+void MeshParticle::translate(std::vector<float> tr)
+{
+    int nvert = vertices.rows();
+    Eigen::Vector3f tvec;
+    
+    // create translation vector
+    tvec << tr[0], tr[1], tr[2];
+    
+    std::cout << nvert << std::endl;
+    
+    // loop over vertices
+    for(int i=0; i < nvert; i++)
+    {
+        vertices.row(i) += tvec;
+        std::cout << vertices.row(i) << std::endl;
+    }
     return;
 }
-*/
+
+void MeshParticle::initialize()
+{
+    calculateFaceAreasNorms();
+    
+    // calculate center of mass of mesh and translate the vertices so that it is zero
+    std::vector<float> com_pos = centerOfMass();
+    
+    com_pos[0] = -com_pos[0];
+    com_pos[1] = -com_pos[1];
+    com_pos[2] = -com_pos[2];
+    
+    translate(com_pos);
+    
+    // calculate inertia moment tensor
+    Eigen::Matrix3f inerm = inertiaMomentTensor();
+    setMatInerm(inerm);
+    
+    return;
+}

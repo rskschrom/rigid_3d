@@ -1,5 +1,6 @@
 from rigidpy.freefallsimulation import FreeFallSimulation
 from rigidpy.particle import Particle
+from rigidpy.state import State
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial.transform import Rotation
@@ -14,9 +15,11 @@ def get_euler(orient):
     return alpha, beta
 
 # create particle and do simulation
-dip_len = 0.015*1.e-3
-par = Particle('../tests/data/crystal_points.txt', 920.*dip_len**3.)
-dt = 1.e-3
+rho = 920.
+par = Particle.from_file('../tests/data/crystal_remesh.stl', rho)
+st = State(par.get_mat_inerm())
+dt = 1.e-2
+nstep = 20000
 
 # loop over different initial zenith angles
 zens = np.arange(5)*10.+5.
@@ -25,9 +28,9 @@ bets = [None]*5
 
 for i in range(5):
     print(zens[i])
-    par.set_omega_body([0.,0.,0.2])
-    par.set_orient_zenith(zens[i])
-    ffsim = FreeFallSimulation(par, 20000, dt, -10.)
+    st.set_omega([0.,0.,0.2])
+    st.set_orient_zenith(zens[i])
+    ffsim = FreeFallSimulation(st, nstep, dt, -9.81, 10., rho, 1.e-5)
     ffsim.evolve_motion_buoyancy()
     orient = ffsim.get_orient_history()
     alp, bet = get_euler(orient)

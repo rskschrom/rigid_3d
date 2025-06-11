@@ -114,6 +114,6 @@ class FreeFallSimulation():
         self._FreeFallSimulation.evolveMotionBuoyancy(nstep)
         
         # update python particle object with wrapped pybind11 particle object
-        self.par._State = self._FreeFallSimulation.st
+        self.st._State = self._FreeFallSimulation.st
         return
     
