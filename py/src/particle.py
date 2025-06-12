@@ -45,5 +45,7 @@ class Particle():
     def get_mat_inerm(self):
         return self._MeshParticle.getMatInerm()
 
+    def get_vertices(self):
+        return self._MeshParticle.getVertices()
 
         

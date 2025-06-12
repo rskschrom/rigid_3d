@@ -82,7 +82,9 @@ class MeshParticle
         
         void setMatInerm(Eigen::Matrix3f imat){ matInerm = imat; }
         
-        Eigen::Matrix3f getMatInerm() { return matInerm;}
+        Eigen::Matrix3f getMatInerm() { return matInerm; }
+        
+        Eigen::MatrixX3f getVertices() { return vertices; }
                 
         /*!
          * Calculate the particle center of mass.
@@ -97,6 +99,13 @@ class MeshParticle
          * \param tr the translation vector.
          */
         void translate(std::vector<float> tr);
+        
+        /*!
+         * Rotate the particle.
+         *
+         * \param quat the rotation quaternion.
+         */
+        void rotate(Eigen::Matrix3f rmat);
         
         
 

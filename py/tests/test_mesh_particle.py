@@ -1,6 +1,8 @@
 from rigidpy.particle import Particle
 import numpy as np
 import pyvista as pv
+import pytest
+from scipy.spatial.transform import Rotation
 
 # create mesh particle
 def create_mesh_particle():
@@ -108,3 +110,31 @@ def test_face_integral():
     x = verts[:,0]
     ixx = par._MeshParticle.triAlp2BetIntegral(x, x, area)
     assert (ixx-area*x[0]**3.)/(area*x[0]**3.)*100.<1.e-3
+    
+# test translation and center of mass calculation
+def test_tr_com():
+    par, mesh = create_mesh_particle()
+    com_pos0 = par._MeshParticle.centerOfMass()
+    
+    print(com_pos0)
+    par._MeshParticle.translate((0.,0.,3.))
+    com_pos = par._MeshParticle.centerOfMass()
+    print(com_pos)
+    assert com_pos0[2]==pytest.approx(0., abs=1.e-4)
+    assert com_pos[2]==pytest.approx(3., abs=1.e-4)
+    
+# test rotation
+def test_rotate():
+    # get initial vertices
+    par, mesh = create_mesh_particle()
+    verts = par.get_vertices()
+    
+    # rotation
+    rmat = Rotation.from_euler('zyz', (25.,-110.,15.), degrees=True).as_matrix()
+    par._MeshParticle.rotate(rmat)
+    verts_r = par.get_vertices()
+    par._MeshParticle.rotate(rmat.T)
+    verts_rr = par.get_vertices()
+    
+    mean_dist = np.mean(np.sqrt(np.sum((verts-verts_rr)**2., axis=1)))
+    assert mean_dist==pytest.approx(0., abs=1.e-4)

@@ -20,7 +20,11 @@ PYBIND11_MODULE(_mesh_particle, m){
     .def("calculateFaceAreasNorms", &MeshParticle::calculateFaceAreasNorms)
     //.def("inertiaMomentTensor", &MeshParticle::inertiaMomentTensor)
     .def("getMatInerm", &MeshParticle::getMatInerm)
-    .def("setMatInerm", &MeshParticle::setMatInerm);
+    .def("setMatInerm", &MeshParticle::setMatInerm)
+    .def("getVertices", &MeshParticle::getVertices)
+    .def("centerOfMass", &MeshParticle::centerOfMass)
+    .def("translate", &MeshParticle::translate)
+    .def("rotate", &MeshParticle::rotate);
     //m.doc() = "";
 
 }
