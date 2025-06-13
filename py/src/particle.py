@@ -2,6 +2,7 @@ from .pybind11_lib._mesh_particle import MeshParticle as _MeshParticle
 from .pybind11_lib._quat import quat
 import numpy as np
 import pyvista as pv
+import trimesh
 
 class Particle():
     '''
@@ -42,10 +43,33 @@ class Particle():
         
         return cls(vertices, faces, rho)
     
+    def write(self, filepath):
+        '''
+        Write the mesh to a `.stl` file.
+        
+        Parameters
+        ----------
+        filepath : str
+            The path to the output mesh `.stl` file.
+            
+        Returns
+        -------
+        None
+        '''
+        # get mesh data and create mesh
+        vertices = self.get_vertices()
+        faces = self.get_faces()
+        mesh = trimesh.Trimesh(vertices=vertices, faces=faces)
+        mesh.export(filepath)
+        return
+    
     def get_mat_inerm(self):
         return self._MeshParticle.getMatInerm()
 
     def get_vertices(self):
         return self._MeshParticle.getVertices()
+    
+    def get_faces(self):
+        return self._MeshParticle.getFaces()
 
         

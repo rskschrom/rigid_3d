@@ -86,6 +86,8 @@ class MeshParticle
         
         Eigen::MatrixX3f getVertices() { return vertices; }
         
+        Eigen::MatrixX3i getFaces() { return faces; }
+        
         Eigen::VectorXf getFaceAreas() { return faceAreas; }
         
         Eigen::MatrixX3f getFaceNorms() { return faceNorms; }

@@ -148,6 +148,11 @@ def test_rotate():
     mean_dist = np.mean(np.sqrt(np.sum((verts-verts_rr)**2., axis=1)))
     assert mean_dist==pytest.approx(0., abs=1.e-4)
 
+def test_mesh_save():
+    par, mesh = create_mesh_particle()
+    par.write('test.stl')
+    assert 0==0
+    
 # test plot 
 def plot():
     par, mesh = create_mesh_particle()
