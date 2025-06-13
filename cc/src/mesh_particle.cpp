@@ -1,6 +1,5 @@
 #include "mesh_particle.h"
 #include "matrix.h"
-#include "quat.h"
 
 float MeshParticle::totalMass()
 {
@@ -35,10 +34,6 @@ void MeshParticle::calculateFaceAreasNorms()
     int iv1, iv2, iv3;
     Eigen::Vector3f v1, v2, v3, v21, v31, vcross;
     
-    // initialize face area vector
-    faceAreas.resize(nface);
-    faceNorms.resize(nface,3);
-    
     for(int i=0; i < nface; i++)
     {
         // get face vertices
@@ -57,7 +52,6 @@ void MeshParticle::calculateFaceAreasNorms()
         faceAreas(i) = 0.5*sqrt(vcross(0)*vcross(0)+vcross(1)*vcross(1)+vcross(2)*vcross(2));
         
         // get normal vector
-        //v21mag = sqrt(v21(0)*v21(0)+v21(0)*v21(0));
         faceNorms(i,0) = vcross(0)/(2.*faceAreas(i));
         faceNorms(i,1) = vcross(1)/(2.*faceAreas(i));
         faceNorms(i,2) = vcross(2)/(2.*faceAreas(i));
@@ -226,7 +220,8 @@ std::vector<float> MeshParticle::centerOfMass()
 
 void MeshParticle::translate(std::vector<float> tr)
 {
-    int nvert = vertices.rows();
+    Eigen::MatrixX3f vertices_tmp = getVertices();
+    int nvert = vertices_tmp.rows();
     Eigen::Vector3f tvec;
     
     // create translation vector
@@ -235,51 +230,59 @@ void MeshParticle::translate(std::vector<float> tr)
     // loop over vertices
     for(int i=0; i < nvert; i++)
     {
-        vertices.row(i) += tvec;
+        vertices_tmp.row(i) += tvec;
     }
+    
+    this->vertices = vertices_tmp;
+    
     return;
 }
 
 void MeshParticle::rotate(Eigen::Matrix3f rmat)
 {
-    int nvert = vertices.rows();
+    Eigen::MatrixX3f vertices_tmp = getVertices();
+    int nvert = vertices_tmp.rows();
     Eigen::Vector3f v;
         
     // loop over vertices
     for(int i=0; i < nvert; i++)
     {
         // rotate vertex
-        //std::cout << "before " << vertices.row(i) << std::endl;
-        //v = rmat * vertices.row(i).transpose();
-        //vertices.row(i) = v;
-        vertices.row(i) *= rmat;
-        //std::cout << "after " << vertices.row(i) << std::endl;
+        vertices_tmp.row(i) *= rmat;
     }
+    
+    this->vertices = vertices_tmp;
+    
+    // recalculate face normals after rotation
+    calculateFaceAreasNorms();
         
     return;
 }
 
 void MeshParticle::initialize()
 {
-    std::cout << "calculate face areas norms" << std::endl;
+    // preprocess
+    int nface = faces.rows();
+    faceAreas.resize(nface);
+    faceNorms.resize(nface,3);
     calculateFaceAreasNorms();
     
     // calculate center of mass of mesh and translate the vertices so that it is zero
-    std::cout << "calculate center of mass" << std::endl;
     std::vector<float> com_pos = centerOfMass();
-    
     com_pos[0] = -com_pos[0];
     com_pos[1] = -com_pos[1];
     com_pos[2] = -com_pos[2];
-    
-    std::cout << "translate" << std::endl;
     translate(com_pos);
     
     // calculate inertia moment tensor
-    std::cout << "inertia moment tensor" << std::endl;
-
-    Eigen::Matrix3f inerm = inertiaMomentTensor();
-    setMatInerm(inerm);
-    std::cout << "end initialize" << std::endl;
+    Eigen::Matrix3f matInerm = inertiaMomentTensor();
+    setMatInerm(matInerm);
+    
+    // rotate and inertia momentum tensor particle points to principal axes reference frame
+    Eigen::Matrix3f eigVecs = sortedEigVecs(matInerm);
+    
+    Eigen::Matrix3f matInermPA = eigVecs.transpose() * matInerm * eigVecs;
+    setMatInerm(matInermPA);
+    
     return;
 }

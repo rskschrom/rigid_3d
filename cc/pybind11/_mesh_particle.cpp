@@ -22,6 +22,8 @@ PYBIND11_MODULE(_mesh_particle, m){
     .def("getMatInerm", &MeshParticle::getMatInerm)
     .def("setMatInerm", &MeshParticle::setMatInerm)
     .def("getVertices", &MeshParticle::getVertices)
+    .def("getFaceAreas", &MeshParticle::getFaceAreas)
+    .def("getFaceNorms", &MeshParticle::getFaceNorms)
     .def("centerOfMass", &MeshParticle::centerOfMass)
     .def("translate", &MeshParticle::translate)
     .def("rotate", &MeshParticle::rotate);

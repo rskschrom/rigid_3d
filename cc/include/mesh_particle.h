@@ -85,6 +85,10 @@ class MeshParticle
         Eigen::Matrix3f getMatInerm() { return matInerm; }
         
         Eigen::MatrixX3f getVertices() { return vertices; }
+        
+        Eigen::VectorXf getFaceAreas() { return faceAreas; }
+        
+        Eigen::MatrixX3f getFaceNorms() { return faceNorms; }
                 
         /*!
          * Calculate the particle center of mass.

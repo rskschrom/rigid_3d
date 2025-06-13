@@ -17,9 +17,9 @@ def create_mesh_particle():
 # test area and normal vectors
 def test_area_norms():
     par, mesh = create_mesh_particle()
-    par._MeshParticle.calculateFaceAreasNorms()
-    areas = par._MeshParticle.faceAreas
-    norms = par._MeshParticle.faceNorms
+    #par._MeshParticle.calculateFaceAreasNorms()
+    areas = par._MeshParticle.getFaceAreas()
+    norms = par._MeshParticle.getFaceNorms()
         
     # compute normals with pyvista
     mesh.compute_normals(inplace=True)
@@ -34,9 +34,15 @@ def test_area_norms():
 # test mass
 def test_mass():
     par, mesh = create_mesh_particle()
-    par._MeshParticle.calculateFaceAreasNorms()
+    #par._MeshParticle.calculateFaceAreasNorms()
     mass = par._MeshParticle.totalMass()
-
+    areas = par._MeshParticle.getFaceAreas()
+    print(mass, mesh.volume*920.)
+    
+    rmat = Rotation.from_euler('zyz', (25.,-110.,15.), degrees=True).as_matrix()
+    par._MeshParticle.rotate(rmat)
+    mass = par._MeshParticle.totalMass()
+    print(mass, mesh.volume*920.)
     assert np.abs(mass-mesh.volume*920.)/(mesh.volume*920.)<1.e-3
         
 # test triangle integral
@@ -115,14 +121,18 @@ def test_face_integral():
 def test_tr_com():
     par, mesh = create_mesh_particle()
     com_pos0 = par._MeshParticle.centerOfMass()
+    verts0 = par.get_vertices()
     
     print(com_pos0)
     par._MeshParticle.translate((0.,0.,3.))
+    verts1 = par.get_vertices()
+    
+    print(verts0[0,2], verts1[0,2])
     com_pos = par._MeshParticle.centerOfMass()
     print(com_pos)
     assert com_pos0[2]==pytest.approx(0., abs=1.e-4)
     assert com_pos[2]==pytest.approx(3., abs=1.e-4)
-    
+
 # test rotation
 def test_rotate():
     # get initial vertices
@@ -132,9 +142,33 @@ def test_rotate():
     # rotation
     rmat = Rotation.from_euler('zyz', (25.,-110.,15.), degrees=True).as_matrix()
     par._MeshParticle.rotate(rmat)
-    verts_r = par.get_vertices()
     par._MeshParticle.rotate(rmat.T)
     verts_rr = par.get_vertices()
     
     mean_dist = np.mean(np.sqrt(np.sum((verts-verts_rr)**2., axis=1)))
     assert mean_dist==pytest.approx(0., abs=1.e-4)
+
+# test plot 
+def plot():
+    par, mesh = create_mesh_particle()
+    vert0 = par.get_vertices()
+    faces = par._MeshParticle.faces
+    
+    rmat = Rotation.from_euler('zyz', (25.,-110.,15.), degrees=True).as_matrix()
+    par._MeshParticle.rotate(rmat)
+    vert1 = par.get_vertices()
+    
+    # create pyvista mesh for rotated particle
+    nvert = vert0.shape[0]
+    nface = faces.shape[0]
+    face_points = vert1[faces,:].reshape(-1, 3)
+    faces = np.hstack((3*np.ones((nface, 1)),
+                       np.arange(face_points.shape[0]).reshape(-1, 3))).astype(int)
+    mesh1 = pv.PolyData(face_points, faces)
+
+    # plot
+    pl = pv.Plotter()
+    pl.add_mesh(mesh, color='w', opacity=0.5)
+    pl.add_mesh(mesh1, color='r', opacity=0.5)
+    pl.show()
+    return
